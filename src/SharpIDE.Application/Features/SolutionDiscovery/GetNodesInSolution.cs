@@ -1,6 +1,12 @@
-﻿namespace SharpIDE.Application.Features.SolutionDiscovery;
+﻿using Microsoft.Build.Construction;
 
-public class GetNodesInSolution
+namespace SharpIDE.Application.Features.SolutionDiscovery;
+
+public static class GetNodesInSolution
 {
-	
+	public static SolutionFile? ParseSolutionFileFromPath(string solutionFilePath)
+	{
+		var solutionFile = SolutionFile.Parse(solutionFilePath);
+		return solutionFile;
+	}
 }
