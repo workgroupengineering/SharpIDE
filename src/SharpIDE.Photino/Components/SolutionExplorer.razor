@@ -56,7 +56,7 @@
 
 	private RenderFragment GetProjectFragment(SharpIdeProjectModel project) =>
 		@<text>
-			 <MudTreeViewItem TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Primary" Text="@project.Name" Value="project">
+			 <MudTreeViewItem TextTypo="Typo.body2" Icon="@Icons.Custom.FileFormats.FileCode" IconColor="Color.Success" Text="@project.Name" Value="project">
 				 @foreach (var folder in project.Folders)
 				 {
 					 <MudTreeViewItem TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Default" @bind-Expanded="folder.Expanded" Text="@folder.Name" Value="@folder">
