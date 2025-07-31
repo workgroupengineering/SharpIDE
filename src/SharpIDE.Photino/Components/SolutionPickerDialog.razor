@@ -1,0 +1,30 @@
+@using Ardalis.GuardClauses
+@using global::Photino.Blazor
+
+@inject PhotinoBlazorApp PhotinoBlazorApp
+
+<MudStack Class="mx-4">
+	<MudTextField T="string" Label="Solution File" Value="@_solutionFilePath" ReadOnly="true" />
+	<MudButton OnClick="@PickSolution">Pick Solution</MudButton>
+	<MudButton OnClick="@Proceed" Disabled="@(string.IsNullOrWhiteSpace(_solutionFilePath))">Open</MudButton>
+</MudStack>
+
+@code {
+	[CascadingParameter]
+    public IMudDialogInstance MudDialog { get; set; } = null!;
+
+	private string? _solutionFilePath;
+
+	private async Task PickSolution()
+	{
+		var files = await PhotinoBlazorApp.MainWindow.ShowOpenFileAsync("Choose Solution File", filters: [("Solution File", [".sln"])]);
+		var slnFile = files.SingleOrDefault();
+		_solutionFilePath = slnFile;
+	}
+
+	private void Proceed()
+	{
+		Guard.Against.NullOrWhiteSpace(_solutionFilePath);
+		MudDialog.Close(_solutionFilePath);
+	}
+}

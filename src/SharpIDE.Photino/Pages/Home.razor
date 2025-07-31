@@ -1,13 +1,27 @@
 ﻿@page "/"
+
 @using SharpIDE.Application.Features.SolutionDiscovery
 
-<CodeViewer FilePath="C:\Users\matth\Documents\Git\SharpIDE.Photino\src\SharpIDE.Photino\Program.cs" />
+@inject IDialogService DialogService
+
+@if (_solutionFilePath is not null)
+{
+	<CodeViewer FilePath="C:\Users\matth\Documents\Git\SharpIDE.Photino\src\SharpIDE.Photino\Program.cs" />
+}
 
 @code
 {
+
+	private string? _solutionFilePath;
+
 	protected override async Task OnInitializedAsync()
 	{
-		await Task.Delay(100);
-		await RoslynTest.Analyse("C:/Users/matth/Documents/Git/SharpIDE.Photino/SharpIDE.Photino.sln");
+		var dialogRef = await DialogService.ShowAsync<SolutionPickerDialog>("Open Solution", new DialogOptions { FullWidth = true, MaxWidth = MaxWidth.Medium });
+		var result = await dialogRef.Result;
+		if (result is null) throw new InvalidOperationException("Dialog result is null");
+		if (result.Canceled) throw new OperationCanceledException("Dialog was canceled");
+		var solutionFilePath = (string)result.Data!;
+		_solutionFilePath = solutionFilePath;
+		await RoslynTest.Analyse(_solutionFilePath);
 	}
 }
