@@ -27,11 +27,14 @@ public static class VsPersistenceMapper
 
 		return solutionModel;
 	}
-	private static SharpIdeProjectModel GetSharpIdeProjectModel(IntermediateProjectModel projectModel) => new SharpIdeProjectModel()
-		{
-			Name = projectModel.Model.DisplayName!,
-			FilePath = projectModel.Model.FilePath,
-		};
+	private static SharpIdeProjectModel GetSharpIdeProjectModel(IntermediateProjectModel projectModel) => new SharpIdeProjectModel
+	{
+		Name = projectModel.Model.ActualDisplayName,
+		FilePath = projectModel.Model.FilePath,
+		Files = TreeMapperV2.GetFiles(projectModel.FullFilePath),
+		Folders = TreeMapperV2.GetSubFolders(projectModel.FullFilePath)
+
+	};
 
 	private static SharpIdeSolutionFolder GetSharpIdeSolutionFolder(IntermediateSlnFolderModel folderModel) => new SharpIdeSolutionFolder()
 		{
@@ -49,7 +52,7 @@ public static class VsPersistenceMapper
 
 		var rootFolders = vsSolution.SolutionFolders
 			.Where(f => f.Parent is null)
-			.Select(f => BuildFolderTree(f, vsSolution.SolutionFolders, vsSolution.SolutionProjects))
+			.Select(f => BuildFolderTree(f, solutionFilePath, vsSolution.SolutionFolders, vsSolution.SolutionProjects))
 			.ToList();
 
 		var solutionModel = new IntermediateSolutionModel
@@ -59,19 +62,20 @@ public static class VsPersistenceMapper
 			Projects = vsSolution.SolutionProjects.Where(p => p.Parent is null).Select(s => new IntermediateProjectModel
 			{
 				Model = s,
-				FullFilePath = Path.GetFullPath(s.FilePath)
+				Id = s.Id,
+				FullFilePath = new DirectoryInfo(Path.Join(Path.GetDirectoryName(solutionFilePath), s.FilePath)).FullName
 			}).ToList(),
 			SolutionFolders = rootFolders
 		};
 		return solutionModel;
 	}
 
-	private static IntermediateSlnFolderModel BuildFolderTree(SolutionFolderModel folder,
+	private static IntermediateSlnFolderModel BuildFolderTree(SolutionFolderModel folder, string solutionFilePath,
 		IReadOnlyList<SolutionFolderModel> allSolutionFolders, IReadOnlyList<SolutionProjectModel> allSolutionProjects)
 	{
 		var childFolders = allSolutionFolders
 			.Where(f => f.Parent == folder)
-			.Select(f => BuildFolderTree(f, allSolutionFolders, allSolutionProjects))
+			.Select(f => BuildFolderTree(f, solutionFilePath, allSolutionFolders, allSolutionProjects))
 			.ToList();
 
 		var projectsInFolder = allSolutionProjects
@@ -79,7 +83,8 @@ public static class VsPersistenceMapper
 			.Select(s => new IntermediateProjectModel
 			{
 				Model = s,
-				FullFilePath = Path.GetFullPath(s.FilePath)
+				Id = s.Id,
+				FullFilePath = new DirectoryInfo(Path.Join(Path.GetDirectoryName(solutionFilePath), s.FilePath)).FullName
 			})
 			.ToList();
 

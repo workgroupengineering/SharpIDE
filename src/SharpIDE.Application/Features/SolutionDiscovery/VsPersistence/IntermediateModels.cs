@@ -21,4 +21,5 @@ public class IntermediateProjectModel
 {
 	public required SolutionProjectModel Model { get; set; }
 	public required string FullFilePath { get; set; }
+	public required Guid Id { get; set; }
 }

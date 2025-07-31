@@ -17,4 +17,6 @@ public class SharpIdeProjectModel
 {
 	public required string Name { get; set; }
 	public required string FilePath { get; set; }
+	public required List<SharpIdeFolder> Folders { get; set; }
+	public required List<SharpIdeFile> Files { get; set; }
 }

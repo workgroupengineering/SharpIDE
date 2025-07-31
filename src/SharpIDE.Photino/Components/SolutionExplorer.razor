@@ -1,18 +1,23 @@
-﻿@using Ardalis.GuardClauses
-@using Microsoft.Build.Construction
-@using SharpIDE.Application.Features.SolutionDiscovery
+﻿@using SharpIDE.Application.Features.SolutionDiscovery
 @using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence
 
-@if (_solutionFile is null)
+@if (SolutionModel is null)
 {
 	return;
 }
-
-<MudTreeView T="ProjectInSolution" Dense="true" >
-	@foreach(var project in _rootNodes)
-	{
-		@GetProjectFragment(project)
-	}
+<MudTreeView T="SharpIdeSolutionModel" Dense="true">
+	<MudTreeViewItem TextTypo="Typo.body2" Expanded="true" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Primary" Value="@SolutionModel" Text="@SolutionModel.Name">
+		<MudTreeView Dense="true">
+			@foreach (var folder in SolutionModel.Folders)
+			{
+				@GetSolutionFolderFragment(folder)
+			}
+			@foreach(var project in SolutionModel.Projects)
+			{
+				@GetProjectFragment(project)
+			}
+		</MudTreeView>
+	</MudTreeViewItem>
 </MudTreeView>
 
 
@@ -23,71 +28,56 @@
 	[Parameter, EditorRequired]
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 
-	private SolutionFile _solutionFile = null!;
-	private List<ProjectInSolution> _rootNodes = [];
-	private Dictionary<string, Folder?> _folders = new();
-
-	private RenderFragment GetProjectFragment(ProjectInSolution project) =>
+	private RenderFragment GetSolutionFolderFragment(SharpIdeSolutionFolder slnFolder) =>
 		@<text>
-			 <MudTreeViewItem TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Primary" Value="project" Text="@project.ProjectName">
-				 @foreach(var child in _solutionFile.ProjectsByGuid.Values.Where(s => s.ParentProjectGuid == project.ProjectGuid).OrderBy(s => s.ProjectName))
+			 <MudTreeViewItem TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Primary" Value="@slnFolder" Text="@slnFolder.Name">
+				 @foreach(var childFolder in slnFolder.Folders)
 				 {
-					 @GetProjectFragment(child)
+					 @GetSolutionFolderFragment(childFolder)
 				 }
-				 @if (_folders.GetValueOrDefault(project.ProjectGuid, null) is {} value)
+				 @foreach(var childProject in slnFolder.Projects)
 				 {
-					 @GetFolderFragment(value)
+					 @GetProjectFragment(childProject)
 				 }
 			 </MudTreeViewItem>
-	</text>;
+		</text>;
 
-	private RenderFragment GetFolderFragment(Folder folder) =>
+	private RenderFragment GetProjectFragment(SharpIdeProjectModel project) =>
 		@<text>
-			 @foreach (var subFolder in folder.Folders)
-			 {
-				 <MudTreeViewItem TextTypo="Typo.body2" @bind-Expanded="subFolder.Expanded" T="ProjectInSolution" Text="@subFolder.Name">
-					 @if (subFolder.Expanded)
-					 {
-						 @GetFolderFragment(subFolder)
-					 }
-				 </MudTreeViewItem>
-			 }
-			 @foreach (var file in folder.Files)
-			 {
-				 <MudTreeViewItem TextTypo="Typo.body2" T="ProjectInSolution" Text="@file.Name" />
-			 }
-	</text>;
+			 <MudTreeViewItem TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Primary" Text="@project.Name" Value="project">
+				 @foreach (var folder in project.Folders)
+				 {
+					 <MudTreeViewItem TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Default" @bind-Expanded="folder.Expanded" Text="@folder.Name" Value="@folder">
+						 @GetFolderFragment(folder)
+					 </MudTreeViewItem>
+				 }
+				 @foreach(var file in project.Files)
+				 {
+					 @GetFileFragment(file)
+				 }
+			 </MudTreeViewItem>
+		</text>;
 
-	protected override async Task OnInitializedAsync()
-	{
-		Guard.Against.NullOrWhiteSpace(SolutionFilePath);
-		await Task.Run(() => LoadSolution(SolutionFilePath));
-	}
+	private RenderFragment GetFolderFragment(SharpIdeFolder folder) =>
+		@<text>
+				 @foreach (var subFolder in folder.Folders)
+				 {
+					 <MudTreeViewItem TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Default" @bind-Expanded="subFolder.Expanded" Text="@subFolder.Name" Value="@subFolder">
+						 @if (subFolder.Expanded)
+						 {
+							 @GetFolderFragment(subFolder)
+						 }
+					 </MudTreeViewItem>
+				 }
+				 @foreach (var file in folder.Files)
+				 {
+					 @GetFileFragment(file)
+				 }
+		</text>;
 
-	private void LoadSolution(string solutionPath)
-	{
-		var solutionFile = GetNodesInSolution.ParseSolutionFileFromPath(solutionPath);
-		ArgumentNullException.ThrowIfNull(solutionFile);
-		_solutionFile = solutionFile;
-		var rootNodes = solutionFile.ProjectsByGuid.Values.Where(p => p.ParentProjectGuid == null).OrderBy(s => s.ProjectName).ToList();
-		_rootNodes = rootNodes;
-
-		var folders2 = _solutionFile.ProjectsByGuid.Values
-			.Where(s => s.ProjectType == SolutionProjectType.KnownToBeMSBuildFormat)
-			//.Take(2)
-			.Select(s =>
-			{
-				var rootFolder = new Folder
-				{
-					Name = Path.GetFileNameWithoutExtension(s.AbsolutePath),
-					Path = Path.GetDirectoryName(s.AbsolutePath)!,
-					IsPseudoFolder = false
-				};
-				rootFolder.Folders = rootFolder.GetSubFolders();
-				return (s, rootFolder);
-			})
-			.ToDictionary(s => s.s.ProjectGuid, s => s.Item2);
-		_folders = folders2!;
-	}
+	private RenderFragment GetFileFragment(SharpIdeFile file) =>
+		@<text>
+			 <MudTreeViewItem T="SharpIdeFile" TextTypo="Typo.body2" Text="@file.Name"/>
+		</text>;
 
 }

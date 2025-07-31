@@ -22,7 +22,7 @@
 			@* @Body *@
 			@if (_solutionFilePath is not null)
 			{
-				<CodeViewer FilePath="C:\Users\matth\Documents\Git\SharpIDE.Photino\src\SharpIDE.Photino\Program.cs" />
+				<CodeViewer FilePath="C:\Users\Matthew\Documents\Git\SharpIDE.Photino\src\SharpIDE.Photino\Program.cs" />
 			}
 		</MudContainer>
 	</MudMainContent>
@@ -48,7 +48,7 @@
 		var solutionFilePath = (string)result.Data!;
 		_solutionFilePath = solutionFilePath;
 
-		await BuildService.BuildSolutionAsync(_solutionFilePath);
+		//await BuildService.BuildSolutionAsync(_solutionFilePath);
 		var solutionModel = await VsPersistenceMapper.GetSolutionModel(_solutionFilePath);
 		_solutionModel = solutionModel;
 	}
