@@ -28,14 +28,14 @@
 			</MudButton>
 		</MudStack>
 		<MudSpacer/>
-		<MudStack Row="true" AlignItems="AlignItems.Center">
-			<MudButton OnClick="@TerminalDrawerToggle">
+		<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+			<MudButton Style="min-width: 20px;" OnClick="@TerminalDrawerToggle">
 				<MudIcon Icon="@Icons.Material.Filled.Terminal" Size="Size.Medium" Color="Color.Default"/>
 			</MudButton>
-			<MudButton>
+			<MudButton Style="min-width: 20px;">
 				<MudIcon Icon="@Icons.Material.Filled.PlayArrow" Size="Size.Medium" Color="Color.Success"/>
 			</MudButton>
-			<MudButton OnClick="@OpenSettingsDialog">
+			<MudButton Style="min-width: 20px;" OnClick="@OpenSettingsDialog">
 				<MudIcon Icon="@Icons.Material.Filled.Settings" Size="Size.Medium" Color="Color.Default"/>
 			</MudButton>
 		</MudStack>
