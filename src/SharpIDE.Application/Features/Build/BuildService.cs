@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Ardalis.GuardClauses;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Logging;
@@ -22,8 +23,13 @@ public class BuildService
 		var normalOut = Console.Out;
 		Console.SetOut(BuildTextWriter);
 		var terminalLogger = InternalTerminalLoggerFactory.CreateLogger();
+		Console.SetOut(normalOut);
+
+		var nodesToBuildWith = GetBuildNodeCount(Environment.ProcessorCount);
 		var buildParameters = new BuildParameters
 		{
+			MaxNodeCount = nodesToBuildWith,
+			DisableInProcNode = true,
 			Loggers =
 			[
 				//new BinaryLogger { Parameters = "msbuild.binlog" },
@@ -32,16 +38,8 @@ public class BuildService
 				//new InMemoryLogger(LoggerVerbosity.Normal)
 			],
 		};
-		Console.SetOut(normalOut);
 
-		string[] targetsToBuild = buildType switch
-		{
-			BuildType.Build => ["Restore", "Build"],
-			BuildType.Rebuild => ["Restore", "Rebuild"],
-			BuildType.Clean => ["Clean"],
-			BuildType.Restore => ["Restore"],
-			_ => throw new ArgumentOutOfRangeException(nameof(buildType), buildType, null)
-		};
+		var targetsToBuild = TargetsToBuild(buildType);
 		var buildRequest = new BuildRequestData(
 			projectFullPath : solutionFilePath,
 			globalProperties: new Dictionary<string, string?>(),
@@ -67,6 +65,33 @@ public class BuildService
 			BuildManager.DefaultBuildManager.EndBuild();
 			Console.WriteLine($"Build result: {buildResult.OverallResult} in {timer.ElapsedMilliseconds}ms");
 		}).ConfigureAwait(false);
+	}
+
+	private static string[] TargetsToBuild(BuildType buildType)
+	{
+		string[] targetsToBuild = buildType switch
+		{
+			BuildType.Build => ["Restore", "Build"],
+			BuildType.Rebuild => ["Restore", "Rebuild"],
+			BuildType.Clean => ["Clean"],
+			BuildType.Restore => ["Restore"],
+			_ => throw new ArgumentOutOfRangeException(nameof(buildType), buildType, null)
+		};
+		return targetsToBuild;
+	}
+
+	private static int GetBuildNodeCount(int processorCount)
+	{
+		var nodesToBuildWith = processorCount switch
+		{
+			1 or 2 => 1,
+			3 or 4 => 2,
+			>= 5 and <= 10 => processorCount - 2,
+			> 10 => processorCount - 4,
+			_ => throw new ArgumentOutOfRangeException(nameof(processorCount))
+		};
+		Guard.Against.NegativeOrZero(nodesToBuildWith, nameof(nodesToBuildWith));
+		return nodesToBuildWith;
 	}
 }
 
