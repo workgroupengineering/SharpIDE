@@ -22,6 +22,11 @@ public static class VsPersistenceMapper
 			Folders = intermediateModel.SolutionFolders.Select(s => new SharpIdeSolutionFolder
 			{
 				Name = s.Model.Name,
+				Files = s.Files.Select(x => new SharpIdeFile
+				{
+					Path = x.FullPath,
+					Name = x.Name
+				}).ToList(),
 				Folders = s.Folders.Select(GetSharpIdeSolutionFolder).ToList(),
 				Projects = s.Projects.Select(GetSharpIdeProjectModel).ToList()
 			}).ToList(),
@@ -41,11 +46,16 @@ public static class VsPersistenceMapper
 	};
 
 	private static SharpIdeSolutionFolder GetSharpIdeSolutionFolder(IntermediateSlnFolderModel folderModel) => new SharpIdeSolutionFolder()
+	{
+		Name = folderModel.Model.Name,
+		Files = folderModel.Files.Select(x => new SharpIdeFile
 		{
-			Name = folderModel.Model.Name,
-			Folders = folderModel.Folders.Select(GetSharpIdeSolutionFolder).ToList(),
-			Projects = folderModel.Projects.Select(GetSharpIdeProjectModel).ToList()
-		};
+			Path = x.FullPath,
+			Name = x.Name
+		}).ToList(),
+		Folders = folderModel.Folders.Select(GetSharpIdeSolutionFolder).ToList(),
+		Projects = folderModel.Projects.Select(GetSharpIdeProjectModel).ToList()
+	};
 
 	private static async Task<IntermediateSolutionModel> GetIntermediateModel(string solutionFilePath,
 		CancellationToken cancellationToken = default)
@@ -92,11 +102,20 @@ public static class VsPersistenceMapper
 			})
 			.ToList();
 
+		var filesInFolder = folder.Files?
+			.Select(f => new IntermediateSlnFolderFileModel
+			{
+				Name = Path.GetFileName(f),
+				FullPath = new FileInfo(Path.Join(Path.GetDirectoryName(solutionFilePath), f)).FullName
+			})
+			.ToList() ?? [];
+
 		return new IntermediateSlnFolderModel
 		{
 			Model = folder,
 			Folders = childFolders,
-			Projects = projectsInFolder
+			Projects = projectsInFolder,
+			Files = filesInFolder
 		};
 	}
 }

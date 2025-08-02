@@ -56,6 +56,10 @@
 					 {
 						 @GetProjectFragment(childProject)
 					 }
+					 @foreach(var file in slnFolder.Files)
+					 {
+						 @GetFileFragment(file)
+					 }
 				 }
 			 </MudTreeViewItem>
 		</text>;
