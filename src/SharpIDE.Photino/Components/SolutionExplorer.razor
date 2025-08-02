@@ -19,7 +19,7 @@
 		{
 			@GetSolutionFolderFragment(folder)
 		}
-		@foreach(var project in SolutionModel.Projects)
+		@foreach (var project in SolutionModel.Projects)
 		{
 			@GetProjectFragment(project)
 		}
@@ -45,30 +45,36 @@
 
 	private RenderFragment GetSolutionFolderFragment(SharpIdeSolutionFolder slnFolder) =>
 		@<text>
-			 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Primary" Value="@slnFolder" Text="@slnFolder.Name">
-				 @foreach(var childFolder in slnFolder.Folders)
+			 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Primary" Value="@slnFolder" Text="@slnFolder.Name" @bind-Expanded="@slnFolder.Expanded">
+				 @if (slnFolder.Expanded)
 				 {
-					 @GetSolutionFolderFragment(childFolder)
-				 }
-				 @foreach(var childProject in slnFolder.Projects)
-				 {
-					 @GetProjectFragment(childProject)
+					 @foreach (var childFolder in slnFolder.Folders)
+					 {
+						 @GetSolutionFolderFragment(childFolder)
+					 }
+					 @foreach (var childProject in slnFolder.Projects)
+					 {
+						 @GetProjectFragment(childProject)
+					 }
 				 }
 			 </MudTreeViewItem>
 		</text>;
 
 	private RenderFragment GetProjectFragment(SharpIdeProjectModel project) =>
 		@<text>
-			 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Custom.FileFormats.FileCode" IconColor="Color.Success" Text="@project.Name" Value="project">
-				 @foreach (var folder in project.Folders)
+			 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Custom.FileFormats.FileCode" IconColor="Color.Success" Text="@project.Name" Value="project" @bind-Expanded="@project.Expanded">
+				 @if (project.Expanded)
 				 {
-					 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Default" @bind-Expanded="folder.Expanded" Text="@folder.Name" Value="@folder">
-						 @GetFolderFragment(folder)
-					 </MudTreeViewItem>
-				 }
-				 @foreach(var file in project.Files)
-				 {
-					 @GetFileFragment(file)
+					 @foreach (var folder in project.Folders)
+					 {
+						 <MudTreeViewItem T="ISharpIdeNode" TextTypo="Typo.body2" Icon="@Icons.Material.Filled.Folder" IconColor="Color.Default" @bind-Expanded="folder.Expanded" Text="@folder.Name" Value="@folder">
+							 @GetFolderFragment(folder)
+						 </MudTreeViewItem>
+					 }
+					 @foreach (var file in project.Files)
+					 {
+						 @GetFileFragment(file)
+					 }
 				 }
 			 </MudTreeViewItem>
 		</text>;

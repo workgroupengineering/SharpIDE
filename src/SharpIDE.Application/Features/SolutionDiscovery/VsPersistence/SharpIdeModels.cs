@@ -14,6 +14,7 @@ public class SharpIdeSolutionFolder : ISharpIdeNode
 	public required string Name { get; set; }
 	public required List<SharpIdeSolutionFolder> Folders { get; set; }
 	public required List<SharpIdeProjectModel> Projects { get; set; }
+	public bool Expanded { get; set; }
 }
 public class SharpIdeProjectModel : ISharpIdeNode
 {
@@ -21,4 +22,5 @@ public class SharpIdeProjectModel : ISharpIdeNode
 	public required string FilePath { get; set; }
 	public required List<SharpIdeFolder> Folders { get; set; }
 	public required List<SharpIdeFile> Files { get; set; }
+	public bool Expanded { get; set; }
 }
