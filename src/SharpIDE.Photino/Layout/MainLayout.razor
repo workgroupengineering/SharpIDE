@@ -9,30 +9,34 @@
 @inject AppState AppState
 
 <MudLayout>
-	<MudAppBar Dense="true">
-		<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
-		<MudButton Style="min-width: 20px;">
-			<MudIcon Icon="@Icons.Material.Filled.FolderOpen" Color="Color.Default" />
-		</MudButton>
-		<MudButtonGroup OverrideStyles="false">
-			<MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" OnClick="@BuildSolution">Build</MudButton>
-			<MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" OnClick="@RebuildSolution">Rebuild</MudButton>
-			<MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" OnClick="@CleanSolution">Clean</MudButton>
-			<MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" OnClick="@RestoreSolution">Restore</MudButton>
-		</MudButtonGroup>
-		<MudButton OnClick="@CancelBuild" Disabled="@(_cancellationTokenSource is null or { IsCancellationRequested: true })">
-			<MudIcon Disabled="@(_cancellationTokenSource is null or { IsCancellationRequested: true })" Icon="@Icons.Material.Filled.Cancel" Size="Size.Medium" Color="Color.Error" />
-		</MudButton>
-		<MudSpacer />
+	<MudAppBar Dense="true" Gutters="false" Class="px-2">
+		<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+			<MudButton OnClick="@DrawerToggle" Style="min-width: 20px;">
+				<MudIcon Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit"/>
+			</MudButton>
+			<MudButton Style="min-width: 20px;">
+				<MudIcon Icon="@Icons.Material.Filled.FolderOpen" Color="Color.Inherit"/>
+			</MudButton>
+			<MudButtonGroup OverrideStyles="false">
+				<MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Primary" OnClick="@BuildSolution">Build</MudButton>
+				<MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" OnClick="@RebuildSolution">Rebuild</MudButton>
+				<MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" OnClick="@CleanSolution">Clean</MudButton>
+				<MudButton Variant="Variant.Outlined" Size="Size.Small" Color="Color.Primary" OnClick="@RestoreSolution">Restore</MudButton>
+			</MudButtonGroup>
+			<MudButton OnClick="@CancelBuild" Disabled="@(_cancellationTokenSource is null or { IsCancellationRequested: true })" Style="min-width: 20px;">
+				<MudIcon Disabled="@(_cancellationTokenSource is null or { IsCancellationRequested: true })" Icon="@Icons.Material.Filled.Cancel" Color="Color.Error"/>
+			</MudButton>
+		</MudStack>
+		<MudSpacer/>
 		<MudStack Row="true" AlignItems="AlignItems.Center">
 			<MudButton OnClick="@TerminalDrawerToggle">
-				<MudIcon Icon="@Icons.Material.Filled.Terminal" Size="Size.Medium" Color="Color.Default" />
+				<MudIcon Icon="@Icons.Material.Filled.Terminal" Size="Size.Medium" Color="Color.Default"/>
 			</MudButton>
 			<MudButton>
-				<MudIcon Icon="@Icons.Material.Filled.PlayArrow" Size="Size.Medium" Color="Color.Success" />
+				<MudIcon Icon="@Icons.Material.Filled.PlayArrow" Size="Size.Medium" Color="Color.Success"/>
 			</MudButton>
 			<MudButton OnClick="@OpenSettingsDialog">
-				<MudIcon Icon="@Icons.Material.Filled.Settings" Size="Size.Medium" Color="Color.Default" />
+				<MudIcon Icon="@Icons.Material.Filled.Settings" Size="Size.Medium" Color="Color.Default"/>
 			</MudButton>
 		</MudStack>
 	</MudAppBar>
