@@ -74,7 +74,6 @@
 		var solutionFilePath = (string)result.Data!;
 		_solutionFilePath = solutionFilePath;
 
-		//await BuildService.BuildSolutionAsync(_solutionFilePath);
 		var solutionModel = await VsPersistenceMapper.GetSolutionModel(_solutionFilePath);
 		_solutionModel = solutionModel;
 		if (AppState.IdeSettings.AutoOpenTerminalOnLaunch)

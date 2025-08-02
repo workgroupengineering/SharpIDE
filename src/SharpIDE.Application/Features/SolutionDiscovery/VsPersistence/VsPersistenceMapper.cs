@@ -1,4 +1,5 @@
-﻿using Ardalis.GuardClauses;
+﻿using System.Diagnostics;
+using Ardalis.GuardClauses;
 using Microsoft.VisualStudio.SolutionPersistence.Model;
 using Microsoft.VisualStudio.SolutionPersistence.Serializer;
 
@@ -8,6 +9,7 @@ public static class VsPersistenceMapper
 {
 	public static async Task<SharpIdeSolutionModel> GetSolutionModel(string solutionFilePath, CancellationToken cancellationToken = default)
 	{
+		var timer = Stopwatch.StartNew();
 		// This intermediate model is pretty much useless, but I have left it around as we grab the project nodes with it, which we might use later.
 		var intermediateModel = await GetIntermediateModel(solutionFilePath, cancellationToken);
 
@@ -24,6 +26,8 @@ public static class VsPersistenceMapper
 				Projects = s.Projects.Select(GetSharpIdeProjectModel).ToList()
 			}).ToList(),
 		};
+		timer.Stop();
+		Console.WriteLine($"Solution model fully created in {timer.ElapsedMilliseconds} ms");
 
 		return solutionModel;
 	}
