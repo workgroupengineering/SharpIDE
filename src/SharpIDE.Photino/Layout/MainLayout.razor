@@ -29,9 +29,6 @@
 		</MudStack>
 		<MudSpacer/>
 		<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-			<MudButton Style="min-width: 20px;" OnClick="@TerminalDrawerToggle">
-				<MudIcon Icon="@Icons.Material.Filled.Terminal" Size="Size.Medium" Color="Color.Default"/>
-			</MudButton>
 			<MudButton Style="min-width: 20px;">
 				<MudIcon Icon="@Icons.Material.Filled.PlayArrow" Size="Size.Medium" Color="Color.Success"/>
 			</MudButton>
@@ -45,10 +42,10 @@
 		<MudStack Style="height: 100%; overflow: hidden" Row="true" Spacing="0" StretchItems="StretchItems.Middle">
 			<MudPaper Elevation="6" Height="100%" Style="background-color: var(--mud-palette-appbar-background); z-index: 1200;">
 				<MudStack AlignItems="AlignItems.Center" Spacing="1" Style="padding: 4px; height: 100%">
-					<SidebarIconButton Icon="@Icons.Material.Filled.FolderOpen" Text="Explorer" OnClick="@DrawerToggle" />
+					<SidebarIconButton Icon="@Icons.Material.Filled.FolderOpen" Text="Explorer" OnClick="@DrawerToggle" Selected="@_drawerOpen" />
 					<MudSpacer />
-					<SidebarIconButton Icon="@Icons.Material.Filled.PlayArrow" Text="Run" OnClick="@SelectRunPanel" />
-					<SidebarIconButton Icon="@Icons.Material.Filled.Terminal" Text="Build" OnClick="@SelectBuildPanel" />
+					<SidebarIconButton Icon="@Icons.Material.Filled.PlayArrow" Text="Run" OnClick="@SelectRunPanel" Selected="@(_selectedBottomPanel is BottomPanelType.Run)" />
+					<SidebarIconButton Icon="@Icons.Material.Filled.Terminal" Text="Build" OnClick="@SelectBuildPanel" Selected="@(_selectedBottomPanel is BottomPanelType.Build)" />
 				</MudStack>
 			</MudPaper>
 			<div>
@@ -90,16 +87,13 @@
 
 @code {
 	private bool _drawerOpen = true;
-	private bool _terminalDrawerOpen = false;
-	private bool _bottomDrawerOpen = true;
+	private bool _bottomDrawerOpen = false;
 	private void DrawerToggle() => _drawerOpen = !_drawerOpen;
-	private void TerminalDrawerToggle() => _terminalDrawerOpen = !_terminalDrawerOpen;
-	private void BottomDrawerToggle() => _bottomDrawerOpen = !_bottomDrawerOpen;
 
 	private string? _solutionFilePath;
 	private SharpIdeSolutionModel? _solutionModel;
 	private SharpIdeFile? _selectedFile;
-	private BottomPanelType? _selectedBottomPanel = BottomPanelType.Build;
+	private BottomPanelType? _selectedBottomPanel = null;
 
 	private string MainContentHeight => _bottomDrawerOpen ? "70%" : "100%";
 
@@ -122,16 +116,6 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await LoadSolutionFromInteractivePicker(AppState.IdeSettings.AutoOpenLastSolution);
-		if (AppState.IdeSettings.AutoOpenTerminalOnLaunch)
-		{
-			_ = Task.Run(async () =>
-			{
-				// The mud drawer is a pain, has an initial state, and won't open if you try to open it before it has rendered (presumably using js)
-				await Task.Delay(125).ConfigureAwait(false);
-				_terminalDrawerOpen = true;
-				await InvokeAsync(StateHasChanged).ConfigureAwait(false);
-			}).ConfigureAwait(false);
-		}
 	}
 
 	private async Task LoadSolutionFromInteractivePicker() => await LoadSolutionFromInteractivePicker(false);
@@ -155,7 +139,7 @@
 	private async Task RestoreSolution() => await MsBuildSolution(BuildType.Restore);
 	private async Task MsBuildSolution(BuildType buildType)
 	{
-		if (AppState.IdeSettings.OpenTerminalOnBuildRebuildRestore) _terminalDrawerOpen = true;
+		if (AppState.IdeSettings.OpenTerminalOnBuildRebuildRestore) SelectBuildPanel();
 		_cancellationTokenSource = new CancellationTokenSource();
 		await BuildService.MsBuildSolutionAsync(_solutionFilePath!, buildType, _cancellationTokenSource.Token);
 		_cancellationTokenSource = null;

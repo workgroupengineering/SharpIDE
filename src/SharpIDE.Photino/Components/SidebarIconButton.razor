@@ -1,4 +1,4 @@
-﻿<MudButton Style="min-width: 20px;" FullWidth="true" OnClick="@OnClick">
+﻿<MudButton Style="min-width: 20px;" FullWidth="true" OnClick="@OnClick" Variant="@(Selected ? Variant.Filled : Variant.Text)">
 	<MudStack AlignItems="AlignItems.Center" Spacing="0">
 		<MudIcon Icon="@Icon" Color="Color.Inherit"/>
 		<MudText Style="margin-top: 1px" Typo="Typo.caption">@Text</MudText>
@@ -11,6 +11,9 @@
 
 	[Parameter, EditorRequired]
     public string? Text { get; set; }
+
+	[Parameter, EditorRequired]
+	public bool Selected { get; set; }
 
 	[Parameter]
     public EventCallback OnClick { get; set; }
