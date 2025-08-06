@@ -1,27 +1,26 @@
 ﻿@using Ardalis.GuardClauses
 @using SharpIDE.Application.Features.SolutionDiscovery
 @using SharpIDE.Photino.Services
-@using BlazorMonaco
 @using BlazorMonaco.Editor
-@using BlazorMonaco.Languages
 
 @inject RefreshOpenFileService RefreshOpenFileService
 
-<MudText>
-	@_internalSelectedFile?.Name
-	@if (_unsavedEdits)
-	{
-		<span>*</span>
-	}
-</MudText>
 <style>
-	#my-editor-id {
-		height: calc(100vh - 100px);
-	}
+    #my-editor-id {
+        height: calc(100% - 24px);
+	    width: calc(100% - 5px); /* the monaco editor is a pain regarding resizes */
+    }
 </style>
-<div style="@(_internalSelectedFile is null ? "visibility: hidden" : null)">
+<MudStack Class="ma-0 pa-0" Spacing="0" Style="@(_internalSelectedFile is null ? "visibility: hidden; height: 100%" : "height: 100%")">
+		<MudText>
+			@_internalSelectedFile?.Name
+			@if (_unsavedEdits)
+			{
+				<span>*</span>
+			}
+		</MudText>
 	<StandaloneCodeEditor @ref="_codeEditorRef" Id="my-editor-id" ConstructionOptions="@EditorConstructionOptions" OnDidChangeModelContent="IfDirtyMarkDirty" OnDidBlurEditorText="@SaveFileToDisk" />
-</div>
+</MudStack>
 
 @code {
 	[Parameter, EditorRequired]

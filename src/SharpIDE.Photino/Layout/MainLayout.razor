@@ -42,34 +42,37 @@
 	</MudAppBar>
 
 	<MudMainContent Style="height: 100%">
-		<MudStack Style="height: 100%" Row="true" Spacing="0" StretchItems="StretchItems.Middle">
+		<MudStack Style="height: 100%; overflow: hidden" Row="true" Spacing="0" StretchItems="StretchItems.Middle">
 			<MudPaper Elevation="6" Height="100%" Style="background-color: var(--mud-palette-appbar-background); z-index: 1200;">
 				<MudStack AlignItems="AlignItems.Center" Spacing="1" Style="padding: 4px; height: 100%">
 					<SidebarIconButton Icon="@Icons.Material.Filled.FolderOpen" Text="Explorer" />
 					<MudSpacer />
 					<SidebarIconButton Icon="@Icons.Material.Filled.PlayArrow" Text="Run" OnClick="@RunDrawerToggle" />
-					<SidebarIconButton Icon="@Icons.Material.Filled.Terminal" Text="Terminal" />
+					<SidebarIconButton Icon="@Icons.Material.Filled.Terminal" Text="Build" />
 				</MudStack>
 			</MudPaper>
-			<MudPaper Height="100%" Style="overflow:hidden; position:relative;">
-				<MudDrawerContainer Style="height: 100%" Class="mud-height-full">
-					<MudDrawer @bind-Open="@_drawerOpen" Style="height: 100%" Width="400px" Fixed="false" Variant="@DrawerVariant.Persistent">
-						@if (_solutionFilePath is not null)
-						{
-							<SolutionExplorer @bind-SelectedFile="@_selectedFile" SolutionModel="@_solutionModel"/>
-						}
-					</MudDrawer>
-					<div class="d-flex justify-center align-center mud-height-full">
-						<MudContainer MaxWidth="MaxWidth.False" Class="mt-2">
-							@* @Body *@
+			<div>
+				<MudPaper Height="@MainContentHeight" Style="overflow:hidden; position:relative;">
+					<MudDrawerContainer Style="height: 100%" Class="mud-height-full">
+						<MudDrawer @bind-Open="@_drawerOpen" Style="height: 100%" Width="400px" Fixed="false" Variant="@DrawerVariant.Persistent">
+							@if (_solutionFilePath is not null)
+							{
+								<SolutionExplorer @bind-SelectedFile="@_selectedFile" SolutionModel="@_solutionModel"/>
+							}
+						</MudDrawer>
+						<div class="d-flex justify-center align-center mud-height-full" style="flex-direction: row">
+							<MudContainer Style="height: 100%" MaxWidth="MaxWidth.False" Class="ma-0 pa-0">
 							@if (_solutionFilePath is not null)
 							{
 								<CodeViewer SelectedFile="@_selectedFile"/>
 							}
-						</MudContainer>
-					</div>
-				</MudDrawerContainer>
-			</MudPaper>
+							</MudContainer>
+						</div>
+					</MudDrawerContainer>
+				</MudPaper>
+				<div>Run</div>
+			</div>
+
 			<div>@* fake for StretchItems.Middle *@</div>
 		</MudStack>
 	</MudMainContent>
@@ -93,6 +96,8 @@
 	private string? _solutionFilePath;
 	private SharpIdeSolutionModel? _solutionModel;
 	private SharpIdeFile? _selectedFile;
+
+	private string MainContentHeight => _runDrawerOpen ? "70%" : "100%";
 
 	protected override async Task OnInitializedAsync()
 	{
