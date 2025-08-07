@@ -1,0 +1,25 @@
+﻿@using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence
+
+<div @onmouseover="@(() => _open = true)" @onmouseleave="@(() => _open = false)">
+	<MudPopover Open="@_open" AnchorOrigin="Origin.CenterCenter">
+		<div class="">
+			<MudPaper Class="pa-2">
+				@foreach(var projects in SolutionModel.AllProjects)
+				{
+					<MudText>@projects.Name</MudText>
+				}
+			</MudPaper>
+		</div>
+	</MudPopover>
+
+	<MudButton Style="min-width: 20px;" >
+		<MudIcon Icon="@Icons.Material.Filled.PlayArrow" Size="Size.Medium" Color="Color.Success"/>
+	</MudButton>
+</div>
+
+@code {
+	[Parameter, EditorRequired]
+	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
+
+	private bool _open = false;
+}

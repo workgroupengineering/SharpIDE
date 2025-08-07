@@ -29,12 +29,10 @@
 		</MudStack>
 		<MudSpacer/>
 		<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
-			<MudButton Style="min-width: 20px;">
-				<MudIcon Icon="@Icons.Material.Filled.PlayArrow" Size="Size.Medium" Color="Color.Success"/>
-			</MudButton>
 			<MudButton Style="min-width: 20px;" OnClick="@OpenSettingsDialog">
 				<MudIcon Icon="@Icons.Material.Filled.Settings" Size="Size.Medium" Color="Color.Default"/>
 			</MudButton>
+			<RunPopover SolutionModel="@_solutionModel" />
 		</MudStack>
 	</MudAppBar>
 
