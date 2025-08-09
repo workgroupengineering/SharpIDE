@@ -38,7 +38,7 @@
 					await _terminalDisplayRef.Write(log);
 				}
 			}
-			catch (Exception e)
+			catch (Exception e) when (e is not OperationCanceledException)
 			{
 				await DispatchExceptionAsync(e);
 			}
