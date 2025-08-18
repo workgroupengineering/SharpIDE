@@ -89,12 +89,14 @@ public partial class SharpIdeCodeEdit : CodeEdit
 				var diagnostics = await RoslynAnalysis.GetDocumentDiagnostics(_currentFile);
 				Callable.From(() =>
 				{
+					BeginComplexOperation();
 					SetText(fileContents);
 					SetSyntaxHighlightingModel(syntaxHighlighting);
 					SetDiagnosticsModel(diagnostics);
 					SetCaretLine(currentCaretPosition.line);
 					SetCaretColumn(currentCaretPosition.col);
 					SetVScroll(vScroll);
+					EndComplexOperation();
 				}).CallDeferred();
 			}
 			catch (Exception ex)
@@ -220,6 +222,8 @@ public partial class SharpIdeCodeEdit : CodeEdit
 						_popupMenu.AddItem(codeAction.Title, index);
 						//_popupMenu.SetItemMetadata(menuItem, codeAction);
 					}
+
+					if (codeActions.Length is not 0) _popupMenu.SetFocusedItem(0);
 					GD.Print($"Code fixes found: {codeActions.Length}, displaying menu");
 				}).CallDeferred();
 			}
