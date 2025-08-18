@@ -35,13 +35,7 @@ public partial class IdeRoot : Control
 			RoslynAnalysis.StartSolutionAnalysis(path);
 			var infraProject = solutionModel.AllProjects.Single(s => s.Name == "Infrastructure");
 			var diFile = infraProject.Files.Single(s => s.Name == "DependencyInjection.cs");
-			var fileContents = await File.ReadAllTextAsync(diFile.Path);
-			_sharpIdeCodeEdit.SetText(fileContents);
-			var syntaxHighlighting = await RoslynAnalysis.GetDocumentSyntaxHighlighting(diFile);
-			_sharpIdeCodeEdit.ProvideSyntaxHighlighting(syntaxHighlighting);
-			var diagnostics = await RoslynAnalysis.GetDocumentDiagnostics(diFile);
-			_sharpIdeCodeEdit.ProvideDiagnostics(diagnostics);
-			
+			await _sharpIdeCodeEdit.SetSharpIdeFile(diFile);
 		}
 		catch (Exception e)
 		{

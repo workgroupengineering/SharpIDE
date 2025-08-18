@@ -162,6 +162,35 @@ public static class RoslynAnalysis
 		return result;
 	}
 
+	public static async Task<ImmutableArray<CodeAction>> GetCodeFixesForDocumentAtPosition(SharpIdeFile fileModel, LinePosition linePosition)
+	{
+		var cancellationToken = CancellationToken.None;
+		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)fileModel).GetNearestProjectNode()!.FilePath);
+		var document = project.Documents.Single(s => s.FilePath == fileModel.Path);
+		Guard.Against.Null(document, nameof(document));
+		var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
+		Guard.Against.Null(semanticModel, nameof(semanticModel));
+
+		var diagnostics = semanticModel.GetDiagnostics();
+		var sourceText = await document.GetTextAsync(cancellationToken);
+		var position = sourceText.Lines.GetPosition(linePosition);
+		var diagnosticsAtPosition = diagnostics
+			.Where(d => d.Location.IsInSource && d.Location.SourceSpan.Contains(position))
+			.ToImmutableArray();
+
+		ImmutableArray<CodeAction> codeActions = [];
+		foreach (var diagnostic in diagnosticsAtPosition)
+		{
+			var actions = await GetCodeFixesAsync(document, diagnostic);
+			codeActions = codeActions.AddRange(actions);
+		}
+
+		var linePositionSpan = new LinePositionSpan(linePosition, new LinePosition(linePosition.Line, linePosition.Character + 1));
+		var selectedSpan = sourceText.Lines.GetTextSpan(linePositionSpan);
+		codeActions = codeActions.AddRange(await GetCodeRefactoringsAsync(document, selectedSpan));
+		return codeActions;
+	}
+
 	public static async Task<ImmutableArray<(FileLinePositionSpan fileSpan, CodeAction codeAction)>> GetCodeFixesAsync(Diagnostic diagnostic)
 	{
 		var cancellationToken = CancellationToken.None;
@@ -175,7 +204,6 @@ public static class RoslynAnalysis
 	private static async Task<ImmutableArray<CodeAction>> GetCodeFixesAsync(Document document, Diagnostic diagnostic)
 	{
 		var cancellationToken = CancellationToken.None;
-		var position = diagnostic.Location.SourceSpan.Start;
 		var codeActions = new List<CodeAction>();
 		var context = new CodeFixContext(
 			document,
@@ -192,9 +220,16 @@ public static class RoslynAnalysis
 			await provider.RegisterCodeFixesAsync(context);
 		}
 
+		return codeActions.ToImmutableArray();
+	}
+
+	private static async Task<ImmutableArray<CodeAction>> GetCodeRefactoringsAsync(Document document, TextSpan span)
+	{
+		var cancellationToken = CancellationToken.None;
+		var codeActions = new List<CodeAction>();
 		var refactorContext = new CodeRefactoringContext(
 			document,
-			diagnostic.Location.SourceSpan,
+			span,
 			action => codeActions.Add(action),
 			cancellationToken
 		);
@@ -202,11 +237,6 @@ public static class RoslynAnalysis
 		foreach (var provider in _codeRefactoringProviders)
 		{
 			await provider.ComputeRefactoringsAsync(refactorContext).ConfigureAwait(false);
-		}
-
-		if (codeActions.Count is not 0)
-		{
-			;
 		}
 
 		return codeActions.ToImmutableArray();

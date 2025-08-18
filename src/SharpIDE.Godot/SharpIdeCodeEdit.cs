@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using Godot;
 using Microsoft.Build.Utilities;
@@ -8,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Classification;
 using Microsoft.CodeAnalysis.Text;
 using SharpIDE.Application.Features.Analysis;
+using SharpIDE.Application.Features.SolutionDiscovery;
 using Task = System.Threading.Tasks.Task;
 
 namespace SharpIDE.Godot;
@@ -20,6 +22,8 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	private int _currentLine;
 	private int _selectionStartCol;
 	private int _selectionEndCol;
+	
+	private SharpIdeFile _currentFile = null!;
 	
 	private CustomHighlighter _syntaxHighlighter = new();
 	private PopupMenu _popupMenu = null!;
@@ -43,6 +47,17 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			GD.Print($"Selection changed to line {_currentLine}, start {_selectionStartCol}, end {_selectionEndCol}");
 		};
 		this.SyntaxHighlighter = _syntaxHighlighter;
+	}
+
+	public async Task SetSharpIdeFile(SharpIdeFile file)
+	{
+		_currentFile = file;
+		var fileContents = await File.ReadAllTextAsync(_currentFile.Path);
+		SetText(fileContents);
+		var syntaxHighlighting = await RoslynAnalysis.GetDocumentSyntaxHighlighting(_currentFile);
+		SetSyntaxHighlightingModel(syntaxHighlighting);
+		var diagnostics = await RoslynAnalysis.GetDocumentDiagnostics(_currentFile);
+		SetDiagnosticsModel(diagnostics);
 	}
 	
 	public void UnderlineRange(int line, int caretStartCol, int caretEndCol, Color color, float thickness = 1.5f)
@@ -104,11 +119,12 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		}
 	}
 
-	public void ProvideDiagnostics(ImmutableArray<(FileLinePositionSpan fileSpan, Diagnostic diagnostic)> diagnostics)
+	private void SetDiagnosticsModel(ImmutableArray<(FileLinePositionSpan fileSpan, Diagnostic diagnostic)> diagnostics)
 	{
 		_diagnostics = diagnostics;
 	}
-	public void ProvideSyntaxHighlighting(IEnumerable<(FileLinePositionSpan fileSpan, ClassifiedSpan classifiedSpan)> classifiedSpans)
+
+	private void SetSyntaxHighlightingModel(IEnumerable<(FileLinePositionSpan fileSpan, ClassifiedSpan classifiedSpan)> classifiedSpans)
 	{
 		_syntaxHighlighter.ClassifiedSpans = classifiedSpans;
 		Callable.From(() =>
@@ -135,14 +151,14 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			try
 			{
 				var linePos = new LinePosition(caretLine, caretColumn);
-				var diagnostic = _diagnostics.FirstOrDefault(d =>
-					d.fileSpan.StartLinePosition <= linePos && d.fileSpan.EndLinePosition >= linePos);
-				if (diagnostic is (_, null)) return;
-				var codeActions = await RoslynAnalysis.GetCodeFixesAsync(diagnostic.diagnostic);
+				// var diagnostic = _diagnostics.FirstOrDefault(d =>
+				// 	d.fileSpan.StartLinePosition <= linePos && d.fileSpan.EndLinePosition >= linePos);
+				// if (diagnostic is (_, null)) return;
+				var codeActions = await RoslynAnalysis.GetCodeFixesForDocumentAtPosition(_currentFile, linePos);
 				Callable.From(() =>
 				{
 					_popupMenu.Clear();
-					foreach (var (index, (fileSpan, codeAction)) in codeActions.Index())
+					foreach (var (index, codeAction) in codeActions.Index())
 					{
 						_popupMenu.AddItem(codeAction.Title, index);
 						//_popupMenu.SetItemMetadata(menuItem, codeAction);
