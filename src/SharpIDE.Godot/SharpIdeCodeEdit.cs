@@ -199,8 +199,8 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	private void OnCodeFixesRequested()
 	{
 		var (caretLine, caretColumn) = GetCaretPosition();
-		var test = GetCaretDrawPos();
-		_popupMenu.Position = new Vector2I((int)test.X, (int)test.Y);
+		var popupMenuPosition = GetCaretDrawPos() with { X = 0 } + GetGlobalPosition();
+		_popupMenu.Position = new Vector2I((int)popupMenuPosition.X, (int)popupMenuPosition.Y);
 		_popupMenu.Clear();
 		_popupMenu.AddItem("Getting Context Actions...", 0);
 		_popupMenu.Popup();
@@ -210,9 +210,6 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			try
 			{
 				var linePos = new LinePosition(caretLine, caretColumn);
-				// var diagnostic = _diagnostics.FirstOrDefault(d =>
-				// 	d.fileSpan.StartLinePosition <= linePos && d.fileSpan.EndLinePosition >= linePos);
-				// if (diagnostic is (_, null)) return;
 				var codeActions = await RoslynAnalysis.GetCodeFixesForDocumentAtPosition(_currentFile, linePos);
 				Callable.From(() =>
 				{
