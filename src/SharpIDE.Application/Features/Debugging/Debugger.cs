@@ -7,9 +7,9 @@ public class Debugger
 {
 	public required SharpIdeProjectModel Project { get; init; }
 	public required int ProcessId { get; init; }
+	private DebuggingService _debuggingService = new DebuggingService();
 	public async Task Attach(CancellationToken cancellationToken)
 	{
-		var debuggingService = new DebuggingService();
-		await debuggingService.Attach(ProcessId, cancellationToken);
+		await _debuggingService.Attach(ProcessId, cancellationToken);
 	}
 }

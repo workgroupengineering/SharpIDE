@@ -11,6 +11,7 @@ namespace SharpIDE.Application.Features.Debugging;
 
 public class DebuggingService
 {
+	private DebugProtocolHost _debugProtocolHost = null!;
 	public async Task Attach(int debuggeeProcessId, CancellationToken cancellationToken = default)
 	{
 		Guard.Against.NegativeOrZero(debuggeeProcessId, nameof(debuggeeProcessId), "Process ID must be a positive integer.");
@@ -32,6 +33,7 @@ public class DebuggingService
 		process.Start();
 
 		var debugProtocolHost = new DebugProtocolHost(process.StandardInput.BaseStream, process.StandardOutput.BaseStream, false);
+		_debugProtocolHost = debugProtocolHost;
 		debugProtocolHost.LogMessage += (sender, args) =>
 		{
 			//Console.WriteLine($"Log message: {args.Message}");
@@ -58,10 +60,15 @@ public class DebuggingService
 			var signatureResponse = VsSigner.Sign(responder.Arguments.Value);
 			responder.SetResponse(new HandshakeResponse(signatureResponse));
 		});
-		debugProtocolHost.RegisterEventType<StoppedEvent>(@event =>
+		debugProtocolHost.RegisterEventType<StoppedEvent>(async void (@event) =>
 		{
-			;
-			var threadId = @event.ThreadId;
+			await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding); // The VS Code Debug Protocol throws if you try to send a request from the dispatcher thread
+			if (@event.Reason is StoppedEvent.ReasonValue.Exception)
+			{
+				Console.WriteLine("Stopped due to exception, continuing");
+				var continueRequest = new ContinueRequest { ThreadId = @event.ThreadId!.Value };
+				_debugProtocolHost.SendRequestSync(continueRequest);
+			}
 		});
 		debugProtocolHost.VerifySynchronousOperationAllowed();
 		var initializeRequest = new InitializeRequest
