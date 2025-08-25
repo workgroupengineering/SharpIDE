@@ -18,6 +18,6 @@ public static class GlobalEvents
 	public static event Func<SharpIdeProjectModel, Task> ProjectStoppedRunning = _ => Task.CompletedTask;
 	public static void InvokeProjectStoppedRunning(SharpIdeProjectModel project) => ProjectStoppedRunning?.Invoke(project);
 
-	public static event Func<string, int, Task> DebuggerExecutionStopped = (_, _) => Task.CompletedTask;
-	public static void InvokeDebuggerExecutionStopped(string filePath, int line) => DebuggerExecutionStopped?.Invoke(filePath, line);
+	public static event Func<ExecutionStopInfo, Task> DebuggerExecutionStopped = _ => Task.CompletedTask;
+	public static void InvokeDebuggerExecutionStopped(ExecutionStopInfo executionStopInfo) => DebuggerExecutionStopped?.Invoke(executionStopInfo);
 }

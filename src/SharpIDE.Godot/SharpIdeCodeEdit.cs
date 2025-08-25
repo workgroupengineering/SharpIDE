@@ -14,6 +14,7 @@ using SharpIDE.Application.Features.Analysis;
 using SharpIDE.Application.Features.Debugging;
 using SharpIDE.Application.Features.Events;
 using SharpIDE.Application.Features.SolutionDiscovery;
+using SharpIDE.Godot.Features.Run;
 using Task = System.Threading.Tasks.Task;
 
 namespace SharpIDE.Godot;
@@ -34,6 +35,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 
 	private ImmutableArray<(FileLinePositionSpan fileSpan, Diagnostic diagnostic)> _diagnostics = [];
 	private ImmutableArray<CodeAction> _currentCodeActionsInPopup = [];
+	private ExecutionStopInfo? _executionStopInfo;
 	
 	public override void _Ready()
 	{
@@ -51,11 +53,12 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		GlobalEvents.DebuggerExecutionStopped += OnDebuggerExecutionStopped;
 	}
 
-	private async Task OnDebuggerExecutionStopped(string filePath, int line)
+	private async Task OnDebuggerExecutionStopped(ExecutionStopInfo executionStopInfo)
 	{
-		if (filePath != _currentFile.Path) return; // TODO: handle file switching
-		var lineInt = line - 1; // Debugging is 1-indexed, Godot is 0-indexed
+		if (executionStopInfo.FilePath != _currentFile.Path) return; // TODO: handle file switching
+		var lineInt = executionStopInfo.Line - 1; // Debugging is 1-indexed, Godot is 0-indexed
 		Guard.Against.Negative(lineInt, nameof(lineInt));
+		_executionStopInfo = executionStopInfo;
 		
 		await this.InvokeAsync(() =>
 		{
@@ -237,6 +240,19 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		{
 			EmitSignalCodeFixesRequested();
 		}
+		else if (@event.IsActionPressed(InputStringNames.StepOver))
+		{
+			SendDebuggerStepOver();
+		}
+	}
+
+	private void SendDebuggerStepOver()
+	{
+		if (_executionStopInfo is null) return;
+		_ = GodotTask.Run(async () =>
+		{
+			await Singletons.RunService.SendDebuggerStepOver(_executionStopInfo.ThreadId);
+		});
 	}
 
 	private void SetDiagnosticsModel(ImmutableArray<(FileLinePositionSpan fileSpan, Diagnostic diagnostic)> diagnostics)

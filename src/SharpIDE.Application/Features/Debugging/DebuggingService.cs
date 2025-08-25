@@ -72,7 +72,8 @@ public class DebuggingService
 			var dict = prop?.GetValue(@event) as Dictionary<string, JToken>;
 			var filePath = dict?["source"]?["path"]!.Value<string>()!;
 			var line = (dict?["line"]?.Value<int>()!).Value;
-			GlobalEvents.InvokeDebuggerExecutionStopped(filePath, line);
+			var executionStopInfo = new ExecutionStopInfo { FilePath = filePath, Line = line, ThreadId = @event.ThreadId!.Value };
+			GlobalEvents.InvokeDebuggerExecutionStopped(executionStopInfo);
 			if (@event.Reason is StoppedEvent.ReasonValue.Exception)
 			{
 				Console.WriteLine("Stopped due to exception, continuing");
@@ -125,4 +126,11 @@ public class DebuggingService
 		debugProtocolHost.SendRequestSync(configurationDoneRequest);
 	}
 	// Typically you would do attachRequest, configurationDoneRequest, setBreakpointsRequest, then ResumeRuntime. But netcoredbg blows up on configurationDoneRequuest if ResumeRuntime hasn't been called yet.
+
+	public async Task StepOver(int threadId, CancellationToken cancellationToken)
+	{
+		await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
+		var nextRequest = new NextRequest(threadId);
+		_debugProtocolHost.SendRequestSync(nextRequest);
+	}
 }

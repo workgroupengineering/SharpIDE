@@ -13,4 +13,6 @@ public class Debugger
 	{
 		await _debuggingService.Attach(ProcessId, breakpointsByFile, cancellationToken);
 	}
+
+	public async Task StepOver(int threadId, CancellationToken cancellationToken = default) => await _debuggingService.StepOver(threadId, cancellationToken);
 }

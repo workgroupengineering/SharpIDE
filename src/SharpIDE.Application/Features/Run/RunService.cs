@@ -14,6 +14,7 @@ public class RunService
 {
 	private readonly ConcurrentDictionary<SharpIdeProjectModel, SemaphoreSlim> _projectLocks = [];
 	public ConcurrentDictionary<SharpIdeFile, List<Breakpoint>> Breakpoints { get; } = [];
+	private Debugger? _debugger; // TODO: Support multiple debuggers for multiple running projects
 	public async Task RunProject(SharpIdeProjectModel project)
 	{
 		var isDebug = true;
@@ -84,8 +85,9 @@ public class RunService
 			if (isDebug)
 			{
 				// Attach debugger (which internally uses a DiagnosticClient to resume startup)
-				var debuggingService = new Debugger { Project = project, ProcessId = process.ProcessId };
-				await debuggingService.Attach(project.RunningCancellationTokenSource.Token, Breakpoints.ToDictionary()).ConfigureAwait(false);
+				var debugger = new Debugger { Project = project, ProcessId = process.ProcessId };
+				_debugger = debugger;
+				await debugger.Attach(project.RunningCancellationTokenSource.Token, Breakpoints.ToDictionary()).ConfigureAwait(false);
 			}
 
 			project.Running = true;
@@ -124,6 +126,11 @@ public class RunService
 		if (project.RunningCancellationTokenSource is null) throw new InvalidOperationException($"Project {project.Name} does not have a running cancellation token source.");
 
 		await project.RunningCancellationTokenSource.CancelAsync().ConfigureAwait(false);
+	}
+
+	public async Task SendDebuggerStepOver(int threadId)
+	{
+		await _debugger!.StepOver(threadId);
 	}
 
 	private string GetRunArguments(SharpIdeProjectModel project)
