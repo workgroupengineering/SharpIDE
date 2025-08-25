@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://b2oniigcp5ew5"]
 
 [ext_resource type="Script" uid="uid://bavypuy7b375x" path="res://IdeRoot.cs" id="1_whawi"]
-[ext_resource type="Texture2D" uid="uid://bnprs1lvjyaji" path="res://Features/Run/Resources/Play.png" id="2_8x8ub"]
+[ext_resource type="Texture2D" uid="uid://bkty6563cthj8" path="res://Features/Run/Resources/Run.svg" id="2_8x8ub"]
 [ext_resource type="Script" uid="uid://du2lt7r1p1qfy" path="res://SharpIdeCodeEdit.cs" id="2_qjf5e"]
 [ext_resource type="FontFile" uid="uid://7jc0nj310cu6" path="res://CascadiaCode.ttf" id="2_rk34b"]
 [ext_resource type="Script" uid="uid://bai53k7ongbxw" path="res://SolutionExplorerPanel.cs" id="2_tcy02"]
@@ -39,12 +39,15 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 5.0
+offset_right = -5.0
 grow_horizontal = 2
 grow_vertical = 2
 
 [node name="OpenSlnButton" type="Button" parent="VBoxContainer/Panel/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 4
 text = "Open Sln"
 
 [node name="Spacer" type="Control" parent="VBoxContainer/Panel/HBoxContainer"]
@@ -54,6 +57,7 @@ size_flags_horizontal = 3
 [node name="RunMenuButton" type="Button" parent="VBoxContainer/Panel/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
+size_flags_vertical = 4
 focus_mode = 0
 disabled = true
 icon = ExtResource("2_8x8ub")
