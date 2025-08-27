@@ -9,7 +9,6 @@ public partial class BottomPanelManager : Panel
     private Control _problemsPanel = null!;
 
     private Dictionary<BottomPanelType, Control> _panelTypeMap = [];
-    private BottomPanelType? _currentPanelType = BottomPanelType.Run;
     
     public override void _Ready()
     {
@@ -23,16 +22,15 @@ public partial class BottomPanelManager : Panel
             { BottomPanelType.Problems, _problemsPanel }
         };
 
-        GodotGlobalEvents.LeftSideBarButtonClicked += OnLeftSideBarButtonClicked;
+        GodotGlobalEvents.BottomPanelTabSelected += OnBottomPanelTabSelected;
     }
 
-    private async Task OnLeftSideBarButtonClicked(BottomPanelType type)
+    private async Task OnBottomPanelTabSelected(BottomPanelType? type)
     {
         await this.InvokeAsync(() =>
         {
-            if (type == _currentPanelType)
+            if (type == null)
             {
-                _currentPanelType = null;
                 // TODO: Ask parent to to collapse slider.
             }
             foreach (var kvp in _panelTypeMap)
