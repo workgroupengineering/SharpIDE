@@ -38,11 +38,17 @@ public partial class IdeRoot : Control
 		_sharpIdeCodeEdit = GetNode<SharpIdeCodeEdit>("%SharpIdeCodeEdit");
 		_fileDialog = GetNode<FileDialog>("%OpenSolutionDialog");
 		_solutionExplorerPanel = GetNode<SolutionExplorerPanel>("%SolutionExplorerPanel");
+		_solutionExplorerPanel.FileSelected += OnSolutionExplorerPanelOnFileSelected;
 		_fileDialog.FileSelected += OnFileSelected;
 		_runPanel = GetNode<RunPanel>("%RunPanel");
 		_openSlnButton.Pressed += () => _fileDialog.Visible = true;
 		//_fileDialog.Visible = true;
 		OnFileSelected(@"C:\Users\Matthew\Documents\Git\BlazorCodeBreaker\BlazorCodeBreaker.slnx");
+	}
+
+	private async void OnSolutionExplorerPanelOnFileSelected(SharpIdeFileGodotContainer file)
+	{
+		await _sharpIdeCodeEdit.SetSharpIdeFile(file.File);
 	}
 
 	private void OnFileSelected(string path)

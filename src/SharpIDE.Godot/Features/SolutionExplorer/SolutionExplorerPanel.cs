@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using Godot;
 using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
@@ -6,15 +7,28 @@ namespace SharpIDE.Godot.Features.SolutionExplorer;
 
 public partial class SolutionExplorerPanel : Panel
 {
+	[Signal]
+	public delegate void FileSelectedEventHandler(SharpIdeFileGodotContainer file);
+	
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 	private Tree _tree = null!;
 	public override void _Ready()
 	{
 		_tree = GetNode<Tree>("Tree");
-		var item = _tree.CreateItem();
-		item.SetText(0, "Solution Explorer");
+		_tree.ItemMouseSelected += TreeOnItemMouseSelected;
 	}
-	
+
+	private void TreeOnItemMouseSelected(Vector2 mousePosition, long mouseButtonIndex)
+	{
+		var selected = _tree.GetSelected();
+		if (selected is null) return;
+		var sharpIdeFileContainer = selected.GetMetadata(0).As<SharpIdeFileGodotContainer?>();
+		if (sharpIdeFileContainer is null) return;
+		var sharpIdeFile = sharpIdeFileContainer.File;
+		Guard.Against.Null(sharpIdeFile, nameof(sharpIdeFile));
+		EmitSignalFileSelected(sharpIdeFileContainer);
+	}
+
 	public void RepopulateTree()
 	{
 		_tree.Clear();
@@ -92,6 +106,8 @@ public partial class SolutionExplorerPanel : Panel
 	{
 		var fileItem = _tree.CreateItem(parent);
 		fileItem.SetText(0, file.Name);
+		var container = new SharpIdeFileGodotContainer { File = file };
+		fileItem.SetMetadata(0, container);
 	}
 	
 
