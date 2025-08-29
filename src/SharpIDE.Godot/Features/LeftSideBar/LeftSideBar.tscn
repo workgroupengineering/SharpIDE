@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://biyhfwx36ium8"]
+[gd_scene load_steps=5 format=3 uid="uid://biyhfwx36ium8"]
 
 [ext_resource type="Texture2D" uid="uid://bkty6563cthj8" path="res://Features/Run/Resources/Run.svg" id="1_6wc7d"]
 [ext_resource type="Script" uid="uid://bddno1bbvvp5q" path="res://Features/LeftSideBar/LeftSideBar.cs" id="1_rgaf0"]
 [ext_resource type="ButtonGroup" uid="uid://c2nmo2x3va0gi" path="res://Features/LeftSideBar/LeftBottomSidebarButtonGroup.tres" id="2_1aad6"]
+[ext_resource type="Texture2D" uid="uid://c7cmou8hipsvc" path="res://Features/Run/Resources/Debug.svg" id="4_gyh3f"]
 
 [node name="LeftSideBar" type="Panel"]
 custom_minimum_size = Vector2(80, 0)
@@ -78,7 +79,7 @@ theme_override_font_sizes/font_size = 13
 toggle_mode = true
 button_group = ExtResource("2_1aad6")
 text = "Debug"
-icon = ExtResource("1_6wc7d")
+icon = ExtResource("4_gyh3f")
 icon_alignment = 1
 vertical_icon_alignment = 0
 expand_icon = true
