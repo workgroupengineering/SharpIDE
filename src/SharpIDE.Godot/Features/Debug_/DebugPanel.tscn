@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dkjips8oudqou"]
+[gd_scene load_steps=3 format=3 uid="uid://dkjips8oudqou"]
 
 [ext_resource type="Script" uid="uid://ddyadu54qitw4" path="res://Features/Debug_/DebugPanel.cs" id="1_h4rcc"]
+[ext_resource type="Texture2D" uid="uid://0digl54lqm6p" path="res://Features/Run/Resources/Running.svg" id="2_pub1e"]
 
 [node name="DebugPanel" type="Control"]
 layout_mode = 3
@@ -10,6 +11,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_h4rcc")
+RunningIcon = ExtResource("2_pub1e")
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 1

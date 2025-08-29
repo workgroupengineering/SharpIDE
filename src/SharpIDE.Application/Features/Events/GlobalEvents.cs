@@ -12,6 +12,12 @@ public static class GlobalEvents
 	public static event Func<Task> StartedRunningProject = () => Task.CompletedTask;
 	public static void InvokeStartedRunningProject() => StartedRunningProject?.InvokeParallelFireAndForget();
 
+	public static event Func<SharpIdeProjectModel, Task> ProjectStartedDebugging = _ => Task.CompletedTask;
+	public static void InvokeProjectStartedDebugging(SharpIdeProjectModel project) => ProjectStartedDebugging?.InvokeParallelFireAndForget(project);
+
+	public static event Func<SharpIdeProjectModel, Task> ProjectStoppedDebugging = _ => Task.CompletedTask;
+	public static void InvokeProjectStoppedDebugging(SharpIdeProjectModel project) => ProjectStoppedDebugging?.InvokeParallelFireAndForget(project);
+
 	public static event Func<SharpIdeProjectModel, Task> ProjectStartedRunning = _ => Task.CompletedTask;
 	public static void InvokeProjectStartedRunning(SharpIdeProjectModel project) => ProjectStartedRunning?.InvokeParallelFireAndForget(project);
 

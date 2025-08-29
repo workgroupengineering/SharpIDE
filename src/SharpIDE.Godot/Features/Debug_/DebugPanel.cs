@@ -13,27 +13,28 @@ public partial class DebugPanel : Control
 	[Export]
 	public Texture2D RunningIcon { get; set; } = null!;
 	
-	private PackedScene _runPanelTabScene = GD.Load<PackedScene>("res://Features/Run/RunPanelTab.tscn");
+	private PackedScene _debugPanelTabScene = GD.Load<PackedScene>("res://Features/Debug_/DebugPanelTab.tscn");
 	public override void _Ready()
 	{
+		if (RunningIcon is null) throw new Exception("RunningIcon is null in DebugPanel");
 		_tabBar = GetNode<TabBar>("%TabBar");
 		_tabBar.ClearTabs();
 		//_tabBar.TabClosePressed
 		_tabBar.TabClicked += OnTabBarTabClicked;
 		_tabsPanel = GetNode<Panel>("%TabsPanel");
-		GlobalEvents.ProjectStartedRunning += async projectModel =>
+		GlobalEvents.ProjectStartedDebugging += async projectModel =>
 		{
-			await this.InvokeAsync(() => ProjectStartedRunning(projectModel));
+			await this.InvokeAsync(() => ProjectStartedDebugging(projectModel));
 		};
-		GlobalEvents.ProjectStoppedRunning += async projectModel =>
+		GlobalEvents.ProjectStoppedDebugging += async projectModel =>
 		{
-			await this.InvokeAsync(() => ProjectStoppedRunning(projectModel));
+			await this.InvokeAsync(() => ProjectStoppedDebugging(projectModel));
 		};
 	}
 
 	private void OnTabBarTabClicked(long idx)
 	{
-		var children = _tabsPanel.GetChildren().OfType<RunPanelTab>().ToList();
+		var children = _tabsPanel.GetChildren().OfType<DebugPanelTab>().ToList();
 		foreach (var child in children)
 		{
 			child.Visible = false;
@@ -43,9 +44,9 @@ public partial class DebugPanel : Control
 		tab.Visible = true;
 	}
 
-	public void ProjectStartedRunning(SharpIdeProjectModel projectModel)
+	public void ProjectStartedDebugging(SharpIdeProjectModel projectModel)
 	{
-		var existingRunPanelTab = _tabsPanel.GetChildren().OfType<RunPanelTab>().SingleOrDefault(s => s.Project == projectModel);
+		var existingRunPanelTab = _tabsPanel.GetChildren().OfType<DebugPanelTab>().SingleOrDefault(s => s.Project == projectModel);
 		if (existingRunPanelTab != null)
 		{
 			_tabBar.SetTabIcon(existingRunPanelTab.TabBarTab, RunningIcon);
@@ -56,21 +57,21 @@ public partial class DebugPanel : Control
 			return;
 		}
 		
-		var runPanelTab = _runPanelTabScene.Instantiate<RunPanelTab>();
-		runPanelTab.Project = projectModel;
+		var debugPanelTab = _debugPanelTabScene.Instantiate<DebugPanelTab>();
+		debugPanelTab.Project = projectModel;
 		_tabBar.AddTab(projectModel.Name);
 		var tabIdx = _tabBar.GetTabCount() - 1;
-		runPanelTab.TabBarTab = tabIdx;
-		_tabBar.SetTabIcon(runPanelTab.TabBarTab, RunningIcon);
-		_tabBar.CurrentTab = runPanelTab.TabBarTab;
-		_tabsPanel.AddChild(runPanelTab);
-		OnTabBarTabClicked(runPanelTab.TabBarTab);
-		runPanelTab.StartWritingFromProjectOutput();
+		debugPanelTab.TabBarTab = tabIdx;
+		_tabBar.SetTabIcon(debugPanelTab.TabBarTab, RunningIcon);
+		_tabBar.CurrentTab = debugPanelTab.TabBarTab;
+		_tabsPanel.AddChild(debugPanelTab);
+		OnTabBarTabClicked(debugPanelTab.TabBarTab);
+		debugPanelTab.StartWritingFromProjectOutput();
 	}
 	
-	public void ProjectStoppedRunning(SharpIdeProjectModel projectModel)
+	public void ProjectStoppedDebugging(SharpIdeProjectModel projectModel)
 	{
-		var runPanelTab = _tabsPanel.GetChildren().OfType<RunPanelTab>().Single(s => s.Project == projectModel);
-		_tabBar.SetTabIcon(runPanelTab.TabBarTab, null);
+		var debugPanelTab = _tabsPanel.GetChildren().OfType<DebugPanelTab>().Single(s => s.Project == projectModel);
+		_tabBar.SetTabIcon(debugPanelTab.TabBarTab, null);
 	}
 }

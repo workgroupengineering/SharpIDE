@@ -15,9 +15,8 @@ public class RunService
 	private readonly ConcurrentDictionary<SharpIdeProjectModel, SemaphoreSlim> _projectLocks = [];
 	public ConcurrentDictionary<SharpIdeFile, List<Breakpoint>> Breakpoints { get; } = [];
 	private Debugger? _debugger; // TODO: Support multiple debuggers for multiple running projects
-	public async Task RunProject(SharpIdeProjectModel project)
+	public async Task RunProject(SharpIdeProjectModel project, bool isDebug = false)
 	{
-		var isDebug = true;
 		Guard.Against.Null(project, nameof(project));
 		Guard.Against.NullOrWhiteSpace(project.FilePath, nameof(project.FilePath), "Project file path cannot be null or empty.");
 		await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
@@ -92,9 +91,16 @@ public class RunService
 
 			project.Running = true;
 			project.OpenInRunPanel = true;
-			GlobalEvents.InvokeProjectsRunningChanged();
-			GlobalEvents.InvokeStartedRunningProject();
-			GlobalEvents.InvokeProjectStartedRunning(project);
+			if (isDebug)
+			{
+				GlobalEvents.InvokeProjectStartedDebugging(project);
+			}
+			else
+			{
+				GlobalEvents.InvokeProjectsRunningChanged();
+				GlobalEvents.InvokeStartedRunningProject();
+				GlobalEvents.InvokeProjectStartedRunning(project);
+			}
 			project.InvokeProjectStartedRunning();
 			await process.WaitForExitAsync().WaitAsync(project.RunningCancellationTokenSource.Token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
 			if (project.RunningCancellationTokenSource.IsCancellationRequested)
@@ -107,8 +113,16 @@ public class RunService
 			project.RunningCancellationTokenSource.Dispose();
 			project.RunningCancellationTokenSource = null;
 			project.Running = false;
-			GlobalEvents.InvokeProjectsRunningChanged();
-			GlobalEvents.InvokeProjectStoppedRunning(project);
+			if (isDebug)
+			{
+				GlobalEvents.InvokeProjectStoppedDebugging(project);
+			}
+			else
+			{
+				GlobalEvents.InvokeProjectsRunningChanged();
+				GlobalEvents.InvokeProjectStoppedRunning(project);
+			}
+
 			project.InvokeProjectStoppedRunning();
 
 			Console.WriteLine("Project finished running");
@@ -131,6 +145,11 @@ public class RunService
 	public async Task SendDebuggerStepOver(int threadId)
 	{
 		await _debugger!.StepOver(threadId);
+	}
+
+	public async Task GetInfoAtStopPoint()
+	{
+		await _debugger!.GetInfoAtStopPoint();
 	}
 
 	private string GetRunArguments(SharpIdeProjectModel project)

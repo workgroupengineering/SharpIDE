@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://d2ewm2lajutpv"]
+[gd_scene load_steps=5 format=3 uid="uid://d2ewm2lajutpv"]
 
 [ext_resource type="Script" uid="uid://btsnapfx0dlbb" path="res://Features/Run/RunMenuItem.cs" id="1_syj0f"]
 [ext_resource type="Texture2D" uid="uid://bkty6563cthj8" path="res://Features/Run/Resources/Run.svg" id="2_hxkig"]
+[ext_resource type="Texture2D" uid="uid://c7cmou8hipsvc" path="res://Features/Run/Resources/Debug.svg" id="3_cd138"]
 [ext_resource type="Texture2D" uid="uid://debdmtqgw5dhf" path="res://Features/Run/Resources/Stop.svg" id="3_hxkig"]
 
 [node name="RunMenuItem" type="HBoxContainer"]
@@ -21,6 +22,11 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_vertical = 4
 icon = ExtResource("2_hxkig")
+
+[node name="DebugButton" type="Button" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+icon = ExtResource("3_cd138")
 
 [node name="StopButton" type="Button" parent="."]
 visible = false

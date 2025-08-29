@@ -18,6 +18,7 @@ public partial class RunPanel : Control
 	private PackedScene _runPanelTabScene = GD.Load<PackedScene>("res://Features/Run/RunPanelTab.tscn");
 	public override void _Ready()
 	{
+		if (RunningIcon is null) throw new Exception("RunningIcon is null in RunPanel");
 		_tabBar = GetNode<TabBar>("%TabBar");
 		_tabBar.ClearTabs();
 		//_tabBar.TabClosePressed
