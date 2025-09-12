@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://tqpmww430cor"]
+[gd_scene load_steps=3 format=3 uid="uid://tqpmww430cor"]
 
 [ext_resource type="Script" uid="uid://b1r3no4u3khik" path="res://Features/Problems/ProblemsPanel.cs" id="1_bnenc"]
+[ext_resource type="Texture2D" uid="uid://pd3h5qfjn8pb" path="res://Features/Problems/Resources/Warning.svg" id="2_xj8le"]
 
 [node name="ProblemsPanel" type="Control"]
 layout_mode = 3
@@ -10,6 +11,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_bnenc")
+WarningIcon = ExtResource("2_xj8le")
+ErrorIcon = ExtResource("2_xj8le")
 
 [node name="ScrollContainer" type="ScrollContainer" parent="."]
 layout_mode = 1

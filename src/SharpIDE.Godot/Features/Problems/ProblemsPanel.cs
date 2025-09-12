@@ -9,6 +9,11 @@ namespace SharpIDE.Godot.Features.Problems;
 
 public partial class ProblemsPanel : Control
 {
+    [Export]
+    public Texture2D WarningIcon { get; set; } = null!;
+    [Export]
+    public Texture2D ErrorIcon { get; set; } = null!;
+    
     public SharpIdeSolutionModel? Solution { get; set; }
     
 	private Tree _tree = null!;
@@ -75,6 +80,12 @@ public partial class ProblemsPanel : Control
         {
             var diagItem = tree.CreateItem(parent);
             diagItem.SetText(0, e.NewItem.Value.GetMessage());
+            diagItem.SetIcon(0, e.NewItem.Value.Severity switch
+            {
+                DiagnosticSeverity.Error => ErrorIcon,
+                DiagnosticSeverity.Warning => WarningIcon,
+                _ => null
+            });
             e.NewItem.View.Value = diagItem;
         });
     }
