@@ -43,7 +43,7 @@ public partial class ProblemsPanel : Control
             var treeItem = _tree.CreateItem(_rootItem);
             treeItem.SetText(0, x.Name);
             var projectDiagnosticsView = x.Diagnostics.CreateView(y => new TreeItemContainer());
-            var disposable = projectDiagnosticsView.ObserveChanged()
+            projectDiagnosticsView.ObserveChanged()
                 .SubscribeAwait(async (e, ct) => await (e.Action switch
                 {
                     NotifyCollectionChangedAction.Add => CreateDiagnosticTreeItem(_tree, treeItem, e),
