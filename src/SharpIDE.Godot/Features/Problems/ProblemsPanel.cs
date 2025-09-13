@@ -25,7 +25,7 @@ public partial class ProblemsPanel : Control
 
     public override void _Ready()
     {
-        _tree = GetNode<Tree>("ScrollContainer/Tree");
+        _tree = GetNode<Tree>("%Tree");
         _rootItem = _tree.CreateItem();
         _rootItem.SetText(0, "Problems");
         Observable.EveryValueChanged(this, manager => manager.Solution)
