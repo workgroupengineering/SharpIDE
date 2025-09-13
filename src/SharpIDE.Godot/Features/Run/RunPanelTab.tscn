@@ -1,24 +1,17 @@
 [gd_scene load_steps=3 format=3 uid="uid://cjopkm4osnp27"]
 
 [ext_resource type="Script" uid="uid://ouskvcd0yaub" path="res://Features/Run/RunPanelTab.cs" id="1_dx3i6"]
+[ext_resource type="Theme" uid="uid://bswaamju2blyt" path="res://Features/TerminalBase/TerminalTheme.tres" id="2_6d1fj"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dx3i6"]
-bg_color = Color(0.129589, 0.120703, 0.112057, 1)
-
-[node name="RunPanelTab" type="Panel"]
+[node name="RunPanelTab" type="MarginContainer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_dx3i6")
 script = ExtResource("1_dx3i6")
 
 [node name="Terminal" type="Terminal" parent="."]
 copy_on_selection = true
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
+layout_mode = 2
+theme = ExtResource("2_6d1fj")
