@@ -49,6 +49,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 				item.UncollapseTree();
 				_tree.SetSelected(item, 0);
 				_tree.ScrollToItem(item, true);
+				_tree.QueueRedraw();
 			});
 		}
 	}

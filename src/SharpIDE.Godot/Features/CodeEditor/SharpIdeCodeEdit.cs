@@ -25,6 +25,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	private int _selectionEndCol;
 	
 	public SharpIdeSolutionModel? Solution { get; set; }
+	public SharpIdeFile SharpIdeFile => _currentFile;
 	private SharpIdeFile _currentFile = null!;
 	
 	private CustomHighlighter _syntaxHighlighter = new();

@@ -1,6 +1,12 @@
-[gd_scene load_steps=2 format=3 uid="uid://c5dlwgcx3ubyp"]
+[gd_scene load_steps=6 format=3 uid="uid://c5dlwgcx3ubyp"]
 
+[ext_resource type="Script" uid="uid://cy7erscaagrtj" path="res://Features/CodeEditor/CodeEditorPanel.cs" id="1_eraxv"]
 [ext_resource type="PackedScene" uid="uid://cinaqbdghcvoi" path="res://Features/CodeEditor/SharpIdeCodeEdit.tscn" id="1_y4okr"]
+[ext_resource type="Texture2D" uid="uid://do0edciarrnp0" path="res://Features/SolutionExplorer/Resources/CsharpFile.svg" id="2_dbtmr"]
+[ext_resource type="StyleBox" uid="uid://bun830pn1vfxw" path="res://Features/CodeEditor/Resources/TabBarTabStyle.tres" id="2_m4iuw"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m4iuw"]
+bg_color = Color(0.11764706, 0.11764706, 0.11764706, 1)
 
 [node name="CodeEditorPanel" type="MarginContainer"]
 anchors_preset = 15
@@ -8,7 +14,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_eraxv")
+CsFileTexture = ExtResource("2_dbtmr")
 
-[node name="SharpIdeCodeEdit" parent="." instance=ExtResource("1_y4okr")]
+[node name="TabContainer" type="TabContainer" parent="."]
 layout_mode = 2
-delimiter_strings = Array[String](["\" \"", "' '"])
+theme_override_constants/side_margin = 0
+theme_override_constants/icon_max_width = 22
+theme_override_font_sizes/font_size = 15
+theme_override_styles/tabbar_background = SubResource("StyleBoxFlat_m4iuw")
+theme_override_styles/tab_selected = ExtResource("2_m4iuw")
+current_tab = 0
+drag_to_rearrange_enabled = true
+
+[node name="SharpIdeCodeEdit" parent="TabContainer" instance=ExtResource("1_y4okr")]
+layout_mode = 2
+metadata/_tab_index = 0

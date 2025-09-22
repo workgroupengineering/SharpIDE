@@ -4,6 +4,7 @@ using SharpIDE.Application.Features.Analysis;
 using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 using SharpIDE.Godot.Features.BottomPanel;
+using SharpIDE.Godot.Features.CodeEditor;
 using SharpIDE.Godot.Features.CustomControls;
 using SharpIDE.Godot.Features.Run;
 using SharpIDE.Godot.Features.SolutionExplorer;
@@ -15,7 +16,7 @@ public partial class IdeRoot : Control
 	private Button _openSlnButton = null!;
 	private Button _buildSlnButton = null!;
 	private FileDialog _fileDialog = null!;
-	private SharpIdeCodeEdit _sharpIdeCodeEdit = null!;
+	private CodeEditorPanel _codeEditorPanel = null!;
 	private SolutionExplorerPanel _solutionExplorerPanel = null!;
 	private InvertedVSplitContainer _invertedVSplitContainer = null!;
 	private RunPanel _runPanel = null!;
@@ -32,7 +33,7 @@ public partial class IdeRoot : Control
 		_buildSlnButton = GetNode<Button>("%BuildSlnButton");
 		_runMenuPopup = GetNode<Popup>("%RunMenuPopup");
 		_runMenuButton = GetNode<Button>("%RunMenuButton");
-		_sharpIdeCodeEdit = GetNode<SharpIdeCodeEdit>("%CodeEditorPanel/SharpIdeCodeEdit");
+		_codeEditorPanel = GetNode<CodeEditorPanel>("%CodeEditorPanel");
 		_fileDialog = GetNode<FileDialog>("%OpenSolutionDialog");
 		_solutionExplorerPanel = GetNode<SolutionExplorerPanel>("%SolutionExplorerPanel");
 		_runPanel = GetNode<RunPanel>("%RunPanel");
@@ -64,7 +65,7 @@ public partial class IdeRoot : Control
 
 	private async Task OnSolutionExplorerPanelOnFileSelected(SharpIdeFile file)
 	{
-		await _sharpIdeCodeEdit.SetSharpIdeFile(file);
+		await _codeEditorPanel.SetSharpIdeFile(file);
 	}
 
 	private void OnSlnFileSelected(string path)
@@ -74,7 +75,7 @@ public partial class IdeRoot : Control
 			GD.Print($"Selected: {path}");
 			var solutionModel = await VsPersistenceMapper.GetSolutionModel(path);
 			_solutionExplorerPanel.SolutionModel = solutionModel;
-			_sharpIdeCodeEdit.Solution = solutionModel;
+			_codeEditorPanel.Solution = solutionModel;
 			_bottomPanelManager.Solution = solutionModel;
 			Callable.From(_solutionExplorerPanel.RepopulateTree).CallDeferred();
 			RoslynAnalysis.StartSolutionAnalysis(solutionModel);
