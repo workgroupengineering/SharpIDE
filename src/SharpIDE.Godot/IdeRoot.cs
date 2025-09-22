@@ -32,7 +32,7 @@ public partial class IdeRoot : Control
 		_buildSlnButton = GetNode<Button>("%BuildSlnButton");
 		_runMenuPopup = GetNode<Popup>("%RunMenuPopup");
 		_runMenuButton = GetNode<Button>("%RunMenuButton");
-		_sharpIdeCodeEdit = GetNode<SharpIdeCodeEdit>("%SharpIdeCodeEdit");
+		_sharpIdeCodeEdit = GetNode<SharpIdeCodeEdit>("%CodeEditorPanel/SharpIdeCodeEdit");
 		_fileDialog = GetNode<FileDialog>("%OpenSolutionDialog");
 		_solutionExplorerPanel = GetNode<SolutionExplorerPanel>("%SolutionExplorerPanel");
 		_runPanel = GetNode<RunPanel>("%RunPanel");

@@ -1,0 +1,48 @@
+[gd_scene load_steps=6 format=3 uid="uid://cinaqbdghcvoi"]
+
+[ext_resource type="FontFile" uid="uid://7jc0nj310cu6" path="res://CascadiaCode.ttf" id="1_s7ira"]
+[ext_resource type="Script" uid="uid://du2lt7r1p1qfy" path="res://Features/CodeEditor/SharpIdeCodeEdit.cs" id="2_kp2fd"]
+
+[sub_resource type="FontVariation" id="FontVariation_y3aoi"]
+base_font = ExtResource("1_s7ira")
+spacing_top = 3
+spacing_bottom = 2
+baseline_offset = 0.05
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_v06ln"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.117647, 0.117647, 0.117647, 1)
+border_color = Color(0, 0, 0, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7ptyn"]
+
+[node name="SharpIdeCodeEdit" type="CodeEdit"]
+theme_override_colors/current_line_color = Color(0.0588235, 0.0588235, 0.0588235, 1)
+theme_override_fonts/font = SubResource("FontVariation_y3aoi")
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("StyleBoxFlat_v06ln")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_7ptyn")
+highlight_current_line = true
+symbol_lookup_on_click = true
+symbol_tooltip_on_hover = true
+gutters_draw_breakpoints_gutter = true
+gutters_draw_executing_lines = true
+gutters_draw_line_numbers = true
+code_completion_enabled = true
+auto_brace_completion_enabled = true
+auto_brace_completion_highlight_matching = true
+script = ExtResource("2_kp2fd")
+
+[node name="CodeFixesMenu" type="PopupMenu" parent="."]
+size = Vector2i(217, 100)
+item_count = 1
+item_0/text = "Getting Context Actions..."
+item_0/id = 0
