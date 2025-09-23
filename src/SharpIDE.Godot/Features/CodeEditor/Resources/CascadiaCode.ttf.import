@@ -3,12 +3,12 @@
 importer="font_data_dynamic"
 type="FontFile"
 uid="uid://7jc0nj310cu6"
-path="res://.godot/imported/CascadiaCode.ttf-a3719bc78bb5325e1cfcc893e4ab58da.fontdata"
+path="res://.godot/imported/CascadiaCode.ttf-5e3ebf31bcbff2dc86863da4d4420804.fontdata"
 
 [deps]
 
-source_file="res://CascadiaCode.ttf"
-dest_files=["res://.godot/imported/CascadiaCode.ttf-a3719bc78bb5325e1cfcc893e4ab58da.fontdata"]
+source_file="res://Features/CodeEditor/Resources/CascadiaCode.ttf"
+dest_files=["res://.godot/imported/CascadiaCode.ttf-5e3ebf31bcbff2dc86863da4d4420804.fontdata"]
 
 [params]
 
@@ -21,6 +21,7 @@ msdf_pixel_range=8
 msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
+modulate_color_glyphs=false
 hinting=2
 subpixel_positioning=0
 keep_rounding_remainders=false
