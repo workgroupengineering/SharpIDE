@@ -53,10 +53,12 @@ public static class RoslynAnalysis
 	public static async Task Analyse(SharpIdeSolutionModel solutionModel)
 	{
 		Console.WriteLine($"RoslynAnalysis: Loading solution");
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(Analyse)}");
 		_sharpIdeSolutionModel = solutionModel;
 		var timer = Stopwatch.StartNew();
 		if (_workspace is null)
 		{
+			using var __ = SharpIdeOtel.Source.StartActivity("CreateWorkspace");
 			var configuration = new ContainerConfiguration()
 				.WithAssemblies(MefHostServices.DefaultAssemblies)
 				.WithAssembly(typeof(RemoteSnapshotManager).Assembly);
@@ -74,17 +76,25 @@ public static class RoslynAnalysis
 			_semanticTokensLegendService = container.GetExports<RemoteSemanticTokensLegendService>().FirstOrDefault();
 			_semanticTokensLegendService!.SetLegend(TokenTypeProvider.ConstructTokenTypes(false), TokenTypeProvider.ConstructTokenModifiers());
 		}
-		var solution = await _workspace.OpenSolutionAsync(_sharpIdeSolutionModel.FilePath, new Progress());
+		using (var ___ = SharpIdeOtel.Source.StartActivity("OpenSolution"))
+		{
+			var solution = await _workspace.OpenSolutionAsync(_sharpIdeSolutionModel.FilePath, new Progress());
+		}
 		timer.Stop();
 		Console.WriteLine($"RoslynAnalysis: Solution loaded in {timer.ElapsedMilliseconds}ms");
 		_solutionLoadedTcs.SetResult();
 
-		foreach (var assembly in MefHostServices.DefaultAssemblies)
+		using (var ____ = SharpIdeOtel.Source.StartActivity("LoadAnalyzersAndFixers"))
 		{
-			var fixers = CodeFixProviderLoader.LoadCodeFixProviders([assembly], LanguageNames.CSharp);
-			_codeFixProviders.AddRange(fixers);
-			var refactoringProviders = CodeRefactoringProviderLoader.LoadCodeRefactoringProviders([assembly], LanguageNames.CSharp);
-			_codeRefactoringProviders.AddRange(refactoringProviders);
+			foreach (var assembly in MefHostServices.DefaultAssemblies)
+			{
+				var fixers = CodeFixProviderLoader.LoadCodeFixProviders([assembly], LanguageNames.CSharp);
+				_codeFixProviders.AddRange(fixers);
+				var refactoringProviders = CodeRefactoringProviderLoader.LoadCodeRefactoringProviders([assembly], LanguageNames.CSharp);
+				_codeRefactoringProviders.AddRange(refactoringProviders);
+			}
+			_codeFixProviders = _codeFixProviders.DistinctBy(s => s.GetType().Name).ToHashSet();
+			_codeRefactoringProviders = _codeRefactoringProviders.DistinctBy(s => s.GetType().Name).ToHashSet();
 		}
 
 		// // TODO: Distinct on the assemblies first
@@ -100,37 +110,35 @@ public static class RoslynAnalysis
 		// 	_codeRefactoringProviders.AddRange(refactoringProviders);
 		// }
 
-		_codeFixProviders = _codeFixProviders.DistinctBy(s => s.GetType().Name).ToHashSet();
-		_codeRefactoringProviders = _codeRefactoringProviders.DistinctBy(s => s.GetType().Name).ToHashSet();
-
 		await UpdateSolutionDiagnostics();
-		foreach (var project in solution.Projects)
-		{
-			// foreach (var document in project.Documents)
-			// {
-			// 	var semanticModel = await document.GetSemanticModelAsync();
-			// 	Guard.Against.Null(semanticModel, nameof(semanticModel));
-			// 	var documentDiagnostics = semanticModel.GetDiagnostics().Where(d => d.Severity is not DiagnosticSeverity.Hidden).ToList();
-			// 	foreach (var diagnostic in documentDiagnostics)
-			// 	{
-			// 		var test = await GetCodeFixesAsync(document, diagnostic);
-			// 	}
-			// 	// var syntaxTree = await document.GetSyntaxTreeAsync();
-			// 	// var root = await syntaxTree!.GetRootAsync();
-			// 	// var classifiedSpans = await Classifier.GetClassifiedSpansAsync(document, root.FullSpan);
-			// 	// foreach (var span in classifiedSpans)
-			// 	// {
-			// 	// 	var classifiedSpan = root.GetText().GetSubText(span.TextSpan);
-			// 	// 	Console.WriteLine($"{span.TextSpan}: {span.ClassificationType}");
-			// 	// 	Console.WriteLine(classifiedSpan);
-			// 	// }
-			// }
-		}
+		// foreach (var project in solution.Projects)
+		// {
+		// 	// foreach (var document in project.Documents)
+		// 	// {
+		// 	// 	var semanticModel = await document.GetSemanticModelAsync();
+		// 	// 	Guard.Against.Null(semanticModel, nameof(semanticModel));
+		// 	// 	var documentDiagnostics = semanticModel.GetDiagnostics().Where(d => d.Severity is not DiagnosticSeverity.Hidden).ToList();
+		// 	// 	foreach (var diagnostic in documentDiagnostics)
+		// 	// 	{
+		// 	// 		var test = await GetCodeFixesAsync(document, diagnostic);
+		// 	// 	}
+		// 	// 	// var syntaxTree = await document.GetSyntaxTreeAsync();
+		// 	// 	// var root = await syntaxTree!.GetRootAsync();
+		// 	// 	// var classifiedSpans = await Classifier.GetClassifiedSpansAsync(document, root.FullSpan);
+		// 	// 	// foreach (var span in classifiedSpans)
+		// 	// 	// {
+		// 	// 	// 	var classifiedSpan = root.GetText().GetSubText(span.TextSpan);
+		// 	// 	// 	Console.WriteLine($"{span.TextSpan}: {span.ClassificationType}");
+		// 	// 	// 	Console.WriteLine(classifiedSpan);
+		// 	// 	// }
+		// 	// }
+		// }
 		Console.WriteLine("RoslynAnalysis: Analysis completed.");
 	}
 
 	public static async Task UpdateSolutionDiagnostics()
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(UpdateSolutionDiagnostics)}");
 		await _solutionLoadedTcs.Task;
 		foreach (var project in _sharpIdeSolutionModel!.AllProjects)
 		{
@@ -143,6 +151,7 @@ public static class RoslynAnalysis
 
 	public static async Task<ImmutableArray<Diagnostic>> GetProjectDiagnostics(SharpIdeProjectModel projectModel)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetProjectDiagnostics)}");
 		await _solutionLoadedTcs.Task;
 		var cancellationToken = CancellationToken.None;
 		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == projectModel.FilePath);
@@ -156,6 +165,7 @@ public static class RoslynAnalysis
 
 	public static async Task<ImmutableArray<(FileLinePositionSpan fileSpan, Diagnostic diagnostic)>> GetDocumentDiagnostics(SharpIdeFile fileModel)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetDocumentDiagnostics)}");
 		await _solutionLoadedTcs.Task;
 		var cancellationToken = CancellationToken.None;
 		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)fileModel).GetNearestProjectNode()!.FilePath);
@@ -177,6 +187,7 @@ public static class RoslynAnalysis
 	public record SharpIdeRazorMappedClassifiedSpan(SharpIdeRazorSourceSpan SourceSpanInRazor, string CsharpClassificationType);
 	public static async Task<IEnumerable<SharpIdeRazorClassifiedSpan>> GetRazorDocumentSyntaxHighlighting(SharpIdeFile fileModel)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetRazorDocumentSyntaxHighlighting)}");
 		await _solutionLoadedTcs.Task;
 		var cancellationToken = CancellationToken.None;
 		var timer = Stopwatch.StartNew();
@@ -284,6 +295,7 @@ public static class RoslynAnalysis
 
 	public static async Task<IEnumerable<(FileLinePositionSpan fileSpan, ClassifiedSpan classifiedSpan)>> GetDocumentSyntaxHighlighting(SharpIdeFile fileModel)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetDocumentSyntaxHighlighting)}");
 		await _solutionLoadedTcs.Task;
 		var cancellationToken = CancellationToken.None;
 		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)fileModel).GetNearestProjectNode()!.FilePath);
@@ -307,6 +319,7 @@ public static class RoslynAnalysis
 
 	public static async Task<CompletionList> GetCodeCompletionsForDocumentAtPosition(SharpIdeFile fileModel, LinePosition linePosition)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetCodeCompletionsForDocumentAtPosition)}");
 		await _solutionLoadedTcs.Task;
 		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)fileModel).GetNearestProjectNode()!.FilePath);
 		var document = project.Documents.Single(s => s.FilePath == fileModel.Path);
@@ -317,6 +330,7 @@ public static class RoslynAnalysis
 
 	public static async Task<ImmutableArray<CodeAction>> GetCodeFixesForDocumentAtPosition(SharpIdeFile fileModel, LinePosition linePosition)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetCodeFixesForDocumentAtPosition)}");
 		var cancellationToken = CancellationToken.None;
 		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)fileModel).GetNearestProjectNode()!.FilePath);
 		var document = project.Documents.Single(s => s.FilePath == fileModel.Path);
@@ -414,6 +428,7 @@ public static class RoslynAnalysis
 
 	public static async Task ApplyCodeActionAsync(CodeAction codeAction)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(ApplyCodeActionAsync)}");
 		var cancellationToken = CancellationToken.None;
 		var operations = await codeAction.GetOperationsAsync(cancellationToken);
 		foreach (var operation in operations)

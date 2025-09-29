@@ -9,6 +9,7 @@ public static class ProjectEvaluation
 	private static readonly ProjectCollection _projectCollection = ProjectCollection.GlobalProjectCollection;
 	public static async Task<Project> GetProject(string projectFilePath)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(ProjectEvaluation)}.{nameof(GetProject)}");
 		Guard.Against.Null(projectFilePath, nameof(projectFilePath));
 
 		await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
