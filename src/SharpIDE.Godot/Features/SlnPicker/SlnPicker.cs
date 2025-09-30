@@ -5,22 +5,20 @@ namespace SharpIDE.Godot.Features.SlnPicker;
 public partial class SlnPicker : Control
 {
     private FileDialog _fileDialog = null!;
+    private Button _openSlnButton = null!;
+
+    private readonly TaskCompletionSource<string?> _tcs = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public override void _Ready()
     {
         _fileDialog = GetNode<FileDialog>("%FileDialog");
+        _openSlnButton = GetNode<Button>("%OpenSlnButton");
+        _openSlnButton.Pressed += () => _fileDialog.PopupCentered();
+        _fileDialog.FileSelected += path => _tcs.SetResult(path);
+        _fileDialog.Canceled += () => _tcs.SetResult(null);
     }
     public async Task<string?> GetSelectedSolutionPath()
     {
-        var tcs = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
-        await this.InvokeAsync(() =>
-        {
-            _fileDialog.FileSelected += path => tcs.SetResult(path);
-            _fileDialog.Canceled += () => tcs.SetResult(null);
-            _fileDialog.PopupCentered();
-        });
-        
-        var selectedPath = await tcs.Task;
-        return selectedPath;
+        return await _tcs.Task;
     }
 }

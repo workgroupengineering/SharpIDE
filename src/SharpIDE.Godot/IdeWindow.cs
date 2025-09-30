@@ -21,6 +21,7 @@ public partial class IdeWindow : Control
     {
         MSBuildLocator.RegisterDefaults();
         GodotServiceDefaults.AddServiceDefaults();
+        //GetWindow().SetMinSize(new Vector2I(1152, 648));
         
         PickSolution();
     }
