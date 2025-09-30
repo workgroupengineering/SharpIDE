@@ -21,11 +21,11 @@ public partial class RunPanel : Control
 		//_tabBar.TabClosePressed
 		_tabBar.TabClicked += OnTabBarTabClicked;
 		_tabsPanel = GetNode<MarginContainer>("%TabsPanel");
-		GlobalEvents.ProjectStartedRunning += async projectModel =>
+		GlobalEvents.Instance.ProjectStartedRunning += async projectModel =>
 		{
 			await this.InvokeAsync(() => ProjectStartedRunning(projectModel));
 		};
-		GlobalEvents.ProjectStoppedRunning += async projectModel =>
+		GlobalEvents.Instance.ProjectStoppedRunning += async projectModel =>
 		{
 			await this.InvokeAsync(() => ProjectStoppedRunning(projectModel));
 		};

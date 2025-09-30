@@ -136,8 +136,9 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+		GlobalEvents.Instance = new GlobalEvents();
 		await LoadSolutionFromInteractivePicker(AppState.IdeSettings.AutoOpenLastSolution);
-		GlobalEvents.StartedRunningProject += OnStartedRunningProject;
+		GlobalEvents.Instance.StartedRunningProject += OnStartedRunningProject;
 	}
 
 	private void OnProblemSelected(SharpIdeFile file)

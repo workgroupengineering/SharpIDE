@@ -3,28 +3,29 @@ using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
 namespace SharpIDE.Application.Features.Events;
 
-public static class GlobalEvents
+public class GlobalEvents
 {
-	public static event Func<Task> ProjectsRunningChanged = () => Task.CompletedTask;
-	public static void InvokeProjectsRunningChanged() => ProjectsRunningChanged?.InvokeParallelFireAndForget();
+	public static GlobalEvents Instance { get; set; } = null!;
+	public event Func<Task> ProjectsRunningChanged = () => Task.CompletedTask;
+	public void InvokeProjectsRunningChanged() => ProjectsRunningChanged?.InvokeParallelFireAndForget();
 
-	public static event Func<Task> StartedRunningProject = () => Task.CompletedTask;
-	public static void InvokeStartedRunningProject() => StartedRunningProject?.InvokeParallelFireAndForget();
+	public event Func<Task> StartedRunningProject = () => Task.CompletedTask;
+	public void InvokeStartedRunningProject() => StartedRunningProject?.InvokeParallelFireAndForget();
 
-	public static event Func<SharpIdeProjectModel, Task> ProjectStartedDebugging = _ => Task.CompletedTask;
-	public static void InvokeProjectStartedDebugging(SharpIdeProjectModel project) => ProjectStartedDebugging?.InvokeParallelFireAndForget(project);
+	public event Func<SharpIdeProjectModel, Task> ProjectStartedDebugging = _ => Task.CompletedTask;
+	public void InvokeProjectStartedDebugging(SharpIdeProjectModel project) => ProjectStartedDebugging?.InvokeParallelFireAndForget(project);
 
-	public static event Func<SharpIdeProjectModel, Task> ProjectStoppedDebugging = _ => Task.CompletedTask;
-	public static void InvokeProjectStoppedDebugging(SharpIdeProjectModel project) => ProjectStoppedDebugging?.InvokeParallelFireAndForget(project);
+	public event Func<SharpIdeProjectModel, Task> ProjectStoppedDebugging = _ => Task.CompletedTask;
+	public void InvokeProjectStoppedDebugging(SharpIdeProjectModel project) => ProjectStoppedDebugging?.InvokeParallelFireAndForget(project);
 
-	public static event Func<SharpIdeProjectModel, Task> ProjectStartedRunning = _ => Task.CompletedTask;
-	public static void InvokeProjectStartedRunning(SharpIdeProjectModel project) => ProjectStartedRunning?.InvokeParallelFireAndForget(project);
+	public event Func<SharpIdeProjectModel, Task> ProjectStartedRunning = _ => Task.CompletedTask;
+	public void InvokeProjectStartedRunning(SharpIdeProjectModel project) => ProjectStartedRunning?.InvokeParallelFireAndForget(project);
 
-	public static event Func<SharpIdeProjectModel, Task> ProjectStoppedRunning = _ => Task.CompletedTask;
-	public static void InvokeProjectStoppedRunning(SharpIdeProjectModel project) => ProjectStoppedRunning?.InvokeParallelFireAndForget(project);
+	public event Func<SharpIdeProjectModel, Task> ProjectStoppedRunning = _ => Task.CompletedTask;
+	public void InvokeProjectStoppedRunning(SharpIdeProjectModel project) => ProjectStoppedRunning?.InvokeParallelFireAndForget(project);
 
-	public static event Func<ExecutionStopInfo, Task> DebuggerExecutionStopped = _ => Task.CompletedTask;
-	public static void InvokeDebuggerExecutionStopped(ExecutionStopInfo executionStopInfo) => DebuggerExecutionStopped?.InvokeParallelFireAndForget(executionStopInfo);
+	public event Func<ExecutionStopInfo, Task> DebuggerExecutionStopped = _ => Task.CompletedTask;
+	public void InvokeDebuggerExecutionStopped(ExecutionStopInfo executionStopInfo) => DebuggerExecutionStopped?.InvokeParallelFireAndForget(executionStopInfo);
 }
 
 public static class AsyncEventExtensions

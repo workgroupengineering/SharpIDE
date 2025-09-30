@@ -25,7 +25,7 @@ public partial class CodeEditorPanel : MarginContainer
         var tabBar = _tabContainer.GetTabBar();
         tabBar.TabCloseDisplayPolicy = TabBar.CloseButtonDisplayPolicy.ShowAlways;
         tabBar.TabClosePressed += OnTabClosePressed;
-		GlobalEvents.DebuggerExecutionStopped += OnDebuggerExecutionStopped;
+		GlobalEvents.Instance.DebuggerExecutionStopped += OnDebuggerExecutionStopped;
     }
     
     public override void _UnhandledKeyInput(InputEvent @event)

@@ -57,7 +57,7 @@
 
 	protected override void OnInitialized()
 	{
-		GlobalEvents.ProjectsRunningChanged += OnProjectsRunningChanged;
+		GlobalEvents.Instance.ProjectsRunningChanged += OnProjectsRunningChanged;
 	}
 
 	protected override async Task OnParametersSetAsync()
@@ -73,5 +73,5 @@
 		await InvokeAsync(StateHasChanged);
 	}
 
-	public void Dispose() => GlobalEvents.ProjectsRunningChanged -= OnProjectsRunningChanged;
+	public void Dispose() => GlobalEvents.Instance.ProjectsRunningChanged -= OnProjectsRunningChanged;
 }

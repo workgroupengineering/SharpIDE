@@ -76,7 +76,7 @@ public class DebuggingService
 			var filePath = dict?["source"]?["path"]!.Value<string>()!;
 			var line = (dict?["line"]?.Value<int>()!).Value;
 			var executionStopInfo = new ExecutionStopInfo { FilePath = filePath, Line = line, ThreadId = @event.ThreadId!.Value };
-			GlobalEvents.InvokeDebuggerExecutionStopped(executionStopInfo);
+			GlobalEvents.Instance.InvokeDebuggerExecutionStopped(executionStopInfo);
 			if (@event.Reason is StoppedEvent.ReasonValue.Exception)
 			{
 				Console.WriteLine("Stopped due to exception, continuing");

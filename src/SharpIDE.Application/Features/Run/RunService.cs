@@ -93,13 +93,13 @@ public class RunService
 			project.OpenInRunPanel = true;
 			if (isDebug)
 			{
-				GlobalEvents.InvokeProjectStartedDebugging(project);
+				GlobalEvents.Instance.InvokeProjectStartedDebugging(project);
 			}
 			else
 			{
-				GlobalEvents.InvokeProjectsRunningChanged();
-				GlobalEvents.InvokeStartedRunningProject();
-				GlobalEvents.InvokeProjectStartedRunning(project);
+				GlobalEvents.Instance.InvokeProjectsRunningChanged();
+				GlobalEvents.Instance.InvokeStartedRunningProject();
+				GlobalEvents.Instance.InvokeProjectStartedRunning(project);
 			}
 			project.InvokeProjectStartedRunning();
 			await process.WaitForExitAsync().WaitAsync(project.RunningCancellationTokenSource.Token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
@@ -115,12 +115,12 @@ public class RunService
 			project.Running = false;
 			if (isDebug)
 			{
-				GlobalEvents.InvokeProjectStoppedDebugging(project);
+				GlobalEvents.Instance.InvokeProjectStoppedDebugging(project);
 			}
 			else
 			{
-				GlobalEvents.InvokeProjectsRunningChanged();
-				GlobalEvents.InvokeProjectStoppedRunning(project);
+				GlobalEvents.Instance.InvokeProjectsRunningChanged();
+				GlobalEvents.Instance.InvokeProjectStoppedRunning(project);
 			}
 
 			project.InvokeProjectStoppedRunning();
