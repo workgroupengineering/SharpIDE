@@ -2,6 +2,7 @@ using Godot;
 using Microsoft.Build.Locator;
 using Microsoft.Extensions.Hosting;
 using SharpIDE.Application.Features.Events;
+using SharpIDE.Godot.Features.IdeSettings;
 using SharpIDE.Godot.Features.SlnPicker;
 
 namespace SharpIDE.Godot;
@@ -25,19 +26,21 @@ public partial class IdeWindow : Control
         ResourceLoader.LoadThreadedRequest(IdeRootScenePath);
         MSBuildLocator.RegisterDefaults();
         GodotServiceDefaults.AddServiceDefaults();
+        Singletons.AppState = AppStateLoader.LoadAppStateFromConfigFile();
         //GetWindow().SetMinSize(new Vector2I(1152, 648));
         Callable.From(() => PickSolution(true)).CallDeferred();
     }
     
-    // public override void _ExitTree()
-    // {
-    //     GodotGlobalEvents.Instance = null!;
-    //     GlobalEvents.Instance = null!;
-    //     GC.Collect();
-    //     GC.WaitForPendingFinalizers();
-    //     GC.Collect();
-    //     PrintOrphanNodes();
-    // }
+    public override void _ExitTree()
+    {
+        AppStateLoader.SaveAppStateToConfigFile(Singletons.AppState);
+        // GodotGlobalEvents.Instance = null!;
+        // GlobalEvents.Instance = null!;
+        // GC.Collect();
+        // GC.WaitForPendingFinalizers();
+        // GC.Collect();
+        // PrintOrphanNodes();
+    }
     
     public void PickSolution(bool fullscreen = false)
     {
