@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://cwvhbsd1mdl2x"]
+[gd_scene load_steps=5 format=3 uid="uid://cwvhbsd1mdl2x"]
 
 [ext_resource type="Script" uid="uid://bjvwb6jg6jpsi" path="res://Features/SlnPicker/SlnPicker.cs" id="1_ciq0g"]
+[ext_resource type="Texture2D" uid="uid://dckpauolo55fo" path="res://Resources/SharpIde.png" id="2_qs47j"]
 [ext_resource type="PackedScene" uid="uid://x5lhwvh5dium" path="res://Features/SlnPicker/PreviousSlnEntry.tscn" id="2_t7l5q"]
 [ext_resource type="Script" uid="uid://but0p7xwpfxtg" path="res://Features/SlnPicker/AutoOpenLastSlnButton.cs" id="4_qs47j"]
 
@@ -34,9 +35,26 @@ theme_override_constants/margin_bottom = 10
 [node name="VBoxContainer" type="VBoxContainer" parent="VSplitContainer/MarginContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="VSplitContainer/MarginContainer/VBoxContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="VSplitContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="VSplitContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+texture = ExtResource("2_qs47j")
+expand_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VSplitContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="VSplitContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 text = "SharpIDE"
+
+[node name="Label2" type="Label" parent="VSplitContainer/MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5689727, 0.56897277, 0.5689727, 1)
+text = "v1.0.0"
 
 [node name="Panel" type="Panel" parent="VSplitContainer"]
 layout_mode = 2
