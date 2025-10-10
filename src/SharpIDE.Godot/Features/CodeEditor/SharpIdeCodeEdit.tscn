@@ -36,6 +36,7 @@ symbol_tooltip_on_hover = true
 gutters_draw_breakpoints_gutter = true
 gutters_draw_executing_lines = true
 gutters_draw_line_numbers = true
+delimiter_strings = Array[String]([])
 code_completion_enabled = true
 code_completion_prefixes = Array[String]([".", " "])
 auto_brace_completion_enabled = true
