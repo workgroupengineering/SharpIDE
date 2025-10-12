@@ -6,7 +6,7 @@ using Roslyn.Utilities;
 
 namespace SharpIDE.Godot.Features.CodeEditor;
 
-public static class SymbolInfoComponents
+public static partial class SymbolInfoComponents
 {
     private static readonly FontVariation MonospaceFont = ResourceLoader.Load<FontVariation>("uid://cctwlwcoycek7");
     public static RichTextLabel GetMethodSymbolInfo(IMethodSymbol methodSymbol)
@@ -17,7 +17,7 @@ public static class SymbolInfoComponents
         label.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         label.PushColor(CachedColors.White);
         label.PushFont(MonospaceFont);
-        label.AddMethodAttributes(methodSymbol);
+        label.AddAttributes(methodSymbol);
         label.AddAccessibilityModifier(methodSymbol);
         label.AddText(" ");
         label.AddStaticModifier(methodSymbol);
@@ -31,8 +31,6 @@ public static class SymbolInfoComponents
         label.AddText("(");
         label.AddParameters(methodSymbol);
         label.AddText(")");
-        label.Newline();
-        label.AddText("in class ");
         label.AddContainingNamespaceAndClass(methodSymbol);
         label.Newline();
         label.AddTypeParameterArguments(methodSymbol);
@@ -53,7 +51,7 @@ public static class SymbolInfoComponents
         _ => "unknown"
     };
 
-    private static void AddAccessibilityModifier(this RichTextLabel label, IMethodSymbol methodSymbol)
+    private static void AddAccessibilityModifier(this RichTextLabel label, ISymbol methodSymbol)
     {
         label.PushColor(CachedColors.KeywordBlue);
         label.AddText(methodSymbol.DeclaredAccessibility.GetAccessibilityString());
@@ -71,7 +69,7 @@ public static class SymbolInfoComponents
         }
     }
     
-    private static void AddOverrideModifier(this RichTextLabel label, IMethodSymbol methodSymbol)
+    private static void AddOverrideModifier(this RichTextLabel label, ISymbol methodSymbol)
     {
         if (methodSymbol.IsOverride)
         {
@@ -82,7 +80,7 @@ public static class SymbolInfoComponents
         }
     }
     
-    private static void AddAbstractModifier(this RichTextLabel label, IMethodSymbol methodSymbol)
+    private static void AddAbstractModifier(this RichTextLabel label, ISymbol methodSymbol)
     {
         if (methodSymbol.IsAbstract)
         {
@@ -93,7 +91,7 @@ public static class SymbolInfoComponents
         }
     }
     
-    private static void AddVirtualModifier(this RichTextLabel label, IMethodSymbol methodSymbol)
+    private static void AddVirtualModifier(this RichTextLabel label, ISymbol methodSymbol)
     {
         if (methodSymbol.IsVirtual)
         {
@@ -104,7 +102,7 @@ public static class SymbolInfoComponents
         }
     }
     
-    private static void AddMethodAttributes(this RichTextLabel label, IMethodSymbol methodSymbol)
+    private static void AddAttributes(this RichTextLabel label, ISymbol methodSymbol)
     {
         var attributes = methodSymbol.GetAttributes();
         if (attributes.Length is 0) return;
@@ -264,10 +262,12 @@ public static class SymbolInfoComponents
         }
     }
     
-    private static void AddContainingNamespaceAndClass(this RichTextLabel label, IMethodSymbol methodSymbol)
+    private static void AddContainingNamespaceAndClass(this RichTextLabel label, ISymbol symbol)
     {
-        if (methodSymbol.ContainingNamespace is null || methodSymbol.ContainingNamespace.IsGlobalNamespace) return;
-        var namespaces = methodSymbol.ContainingNamespace.ToDisplayString().Split('.');
+        if (symbol.ContainingNamespace is null || symbol.ContainingNamespace.IsGlobalNamespace) return;
+        label.Newline();
+        label.AddText("in class ");
+        var namespaces = symbol.ContainingNamespace.ToDisplayString().Split('.');
         label.PushMeta("TODO", RichTextLabel.MetaUnderline.OnHover);
         foreach (var ns in namespaces)
         {
@@ -277,7 +277,7 @@ public static class SymbolInfoComponents
             label.AddText(".");
         }
         label.PushColor(CachedColors.ClassGreen);
-        label.AddText(methodSymbol.ContainingType.Name);
+        label.AddText(symbol.ContainingType.Name);
         label.Pop();
         label.Pop(); // meta
     }
