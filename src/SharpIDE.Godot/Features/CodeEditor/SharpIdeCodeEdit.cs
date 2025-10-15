@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Classification;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
+using SharpIDE.Application;
 using SharpIDE.Application.Features.Analysis;
 using SharpIDE.Application.Features.Debugging;
 using SharpIDE.Application.Features.SolutionDiscovery;
@@ -207,25 +208,19 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		// GD.Print($"Selection changed to line {_currentLine}, start {_selectionStartCol}, end {_selectionEndCol}");
 	}
 
+	// Ideally this method completes in < 35ms, to ~ handle 28 char/s spam typing
 	private async void OnTextChanged()
 	{
-		await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding);
+		var __ = SharpIdeOtel.Source.StartActivity($"{nameof(SharpIdeCodeEdit)}.{nameof(OnTextChanged)}");
+		// Note that we are currently on the UI thread, so be very conscious of what we do here
+		// If we update the documents syntax highlighting here, we won't get any flashes of incorrect highlighting, most noticeable when inserting new lines
 		_currentFile.IsDirty.Value = true;
 		await Singletons.FileManager.UpdateFileTextInMemory(_currentFile, Text);
-		_ = Task.GodotRun(async () =>
-		{
-			var syntaxHighlighting = RoslynAnalysis.GetDocumentSyntaxHighlighting(_currentFile);
-			var razorSyntaxHighlighting = RoslynAnalysis.GetRazorDocumentSyntaxHighlighting(_currentFile);
-			var diagnostics = RoslynAnalysis.GetDocumentDiagnostics(_currentFile);
-			var slnDiagnostics = RoslynAnalysis.UpdateSolutionDiagnostics();
-			await Task.WhenAll(syntaxHighlighting, razorSyntaxHighlighting, diagnostics);
-			Callable.From(() =>
-			{
-				SetSyntaxHighlightingModel(syntaxHighlighting.Result, razorSyntaxHighlighting.Result);
-				SetDiagnosticsModel(diagnostics.Result);
-			}).CallDeferred();
-			await slnDiagnostics;
-		});
+		var syntaxHighlighting = RoslynAnalysis.GetDocumentSyntaxHighlighting(_currentFile);
+		var razorSyntaxHighlighting = RoslynAnalysis.GetRazorDocumentSyntaxHighlighting(_currentFile);
+		SetSyntaxHighlightingModel(await syntaxHighlighting, await razorSyntaxHighlighting);
+		__?.Dispose();
+		_ = Task.GodotRun(async () => SetDiagnosticsModel(await RoslynAnalysis.GetDocumentDiagnostics(_currentFile)));
 	}
 
 	// TODO: This is now significantly slower, invoke -> text updated in editor
@@ -300,7 +295,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			_fileChangingSuppressBreakpointToggleEvent = false;
 		});
 		await Task.WhenAll(syntaxHighlighting, razorSyntaxHighlighting, setTextTask); // Text must be set before setting syntax highlighting
-		SetSyntaxHighlightingModel(await syntaxHighlighting, await razorSyntaxHighlighting);
+		await this.InvokeAsync(async () => SetSyntaxHighlightingModel(await syntaxHighlighting, await razorSyntaxHighlighting));
 		SetDiagnosticsModel(await diagnostics);
 	}
 
@@ -408,18 +403,16 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	private void SetDiagnosticsModel(ImmutableArray<(FileLinePositionSpan fileSpan, Diagnostic diagnostic)> diagnostics)
 	{
 		_diagnostics = diagnostics;
+		Callable.From(QueueRedraw).CallDeferred();
 	}
 
 	private void SetSyntaxHighlightingModel(IEnumerable<(FileLinePositionSpan fileSpan, ClassifiedSpan classifiedSpan)> classifiedSpans, IEnumerable<SharpIdeRazorClassifiedSpan> razorClassifiedSpans)
 	{
 		_syntaxHighlighter.SetHighlightingData(classifiedSpans, razorClassifiedSpans);
-		Callable.From(() =>
-		{
-			_syntaxHighlighter.ClearHighlightingCache();
-			//_syntaxHighlighter.UpdateCache();
-			SyntaxHighlighter = null;
-			SyntaxHighlighter = _syntaxHighlighter; // Reassign to trigger redraw
-		}).CallDeferred();
+		//_syntaxHighlighter.ClearHighlightingCache();
+		_syntaxHighlighter.UpdateCache();
+		SyntaxHighlighter = null;
+		SyntaxHighlighter = _syntaxHighlighter; // Reassign to trigger redraw
 	}
 
 	private void OnCodeFixesRequested()

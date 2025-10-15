@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Composition.Hosting;
 using System.Diagnostics;
+using System.Text;
 using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.CodeAnalysis;
@@ -439,6 +440,7 @@ public static class RoslynAnalysis
 		return sharpIdeRazorSpans;
 	}
 
+	// This is expensive for files that have just been updated, making it suboptimal for real-time highlighting
 	public static async Task<IEnumerable<(FileLinePositionSpan fileSpan, ClassifiedSpan classifiedSpan)>> GetDocumentSyntaxHighlighting(SharpIdeFile fileModel, CancellationToken cancellationToken = default)
 	{
 		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetDocumentSyntaxHighlighting)}");
@@ -684,12 +686,13 @@ public static class RoslynAnalysis
 
 	public static async Task UpdateDocument(SharpIdeFile fileModel, string newContent)
 	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(UpdateDocument)}");
 		Guard.Against.Null(fileModel, nameof(fileModel));
 		Guard.Against.NullOrEmpty(newContent, nameof(newContent));
 
 		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)fileModel).GetNearestProjectNode()!.FilePath);
 
-		var sourceText = SourceText.From(newContent);
+		var sourceText = SourceText.From(newContent, Encoding.UTF8);
 		var document = fileModel switch
 		{
 			{ IsRazorFile: true } => project.AdditionalDocuments.Single(s => s.FilePath == fileModel.Path),
