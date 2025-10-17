@@ -294,6 +294,25 @@ public static class RoslynAnalysis
 		return diagnostics;
 	}
 
+	public static async Task<ImmutableArray<SharpIdeDiagnostic>> GetProjectDiagnosticsForFile(SharpIdeFile sharpIdeFile)
+	{
+		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetProjectDiagnosticsForFile)}");
+		await _solutionLoadedTcs.Task;
+		var cancellationToken = CancellationToken.None;
+		var project = _workspace!.CurrentSolution.Projects.Single(s => s.FilePath == ((IChildSharpIdeNode)sharpIdeFile).GetNearestProjectNode()!.FilePath);
+		var compilation = await project.GetCompilationAsync(cancellationToken);
+		Guard.Against.Null(compilation, nameof(compilation));
+
+		var document = await GetDocumentForSharpIdeFile(sharpIdeFile);
+
+		var syntaxTree = compilation.SyntaxTrees.Single(s => s.FilePath == document.FilePath);
+		var diagnostics = compilation.GetDiagnostics(cancellationToken)
+			.Where(d => d.Severity is not DiagnosticSeverity.Hidden && d.Location.SourceTree == syntaxTree)
+			.Select(d => new SharpIdeDiagnostic(syntaxTree.GetMappedLineSpan(d.Location.SourceSpan).Span, d))
+			.ToImmutableArray();
+		return diagnostics;
+	}
+
 	public static async Task<ImmutableArray<SharpIdeDiagnostic>> GetDocumentDiagnostics(SharpIdeFile fileModel, CancellationToken cancellationToken = default)
 	{
 		if (fileModel.IsRoslynWorkspaceFile is false) return [];

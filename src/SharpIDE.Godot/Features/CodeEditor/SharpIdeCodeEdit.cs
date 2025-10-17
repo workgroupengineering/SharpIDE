@@ -4,9 +4,11 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Classification;
 using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
+using Roslyn.Utilities;
 using SharpIDE.Application;
 using SharpIDE.Application.Features.Analysis;
 using SharpIDE.Application.Features.Debugging;
+using SharpIDE.Application.Features.Events;
 using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 using SharpIDE.RazorAccess;
@@ -32,7 +34,8 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	private CustomHighlighter _syntaxHighlighter = new();
 	private PopupMenu _popupMenu = null!;
 
-	private ImmutableArray<SharpIdeDiagnostic> _diagnostics = [];
+	private ImmutableArray<SharpIdeDiagnostic> _fileDiagnostics = [];
+	private ImmutableArray<SharpIdeDiagnostic> _projectDiagnosticsForFile = [];
 	private ImmutableArray<CodeAction> _currentCodeActionsInPopup = [];
 	private bool _fileChangingSuppressBreakpointToggleEvent;
 	
@@ -266,7 +269,12 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			_ = Task.GodotRun(async () =>
 			{
 				var documentDiagnostics = await RoslynAnalysis.GetDocumentDiagnostics(_currentFile, _textChangedCts.Token);
-				await this.InvokeAsync(() => SetDiagnosticsModel(documentDiagnostics));
+				await this.InvokeAsync(() => SetDiagnostics(documentDiagnostics));
+			});
+			_ = Task.GodotRun(async () =>
+			{
+				var projectDiagnosticsForFile = await RoslynAnalysis.GetProjectDiagnosticsForFile(_currentFile);
+				await this.InvokeAsync(() => SetProjectDiagnostics(projectDiagnosticsForFile));
 			});
 		});
 	}
@@ -305,7 +313,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			BeginComplexOperation();
 			SetText(fileContents);
 			SetSyntaxHighlightingModel(syntaxHighlighting.Result, razorSyntaxHighlighting.Result);
-			SetDiagnosticsModel(diagnostics.Result);
+			SetDiagnostics(diagnostics.Result);
 			SetCaretLine(currentCaretPosition.line);
 			SetCaretColumn(currentCaretPosition.col);
 			SetVScroll(vScroll);
@@ -336,6 +344,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		var syntaxHighlighting = RoslynAnalysis.GetDocumentSyntaxHighlighting(_currentFile);
 		var razorSyntaxHighlighting = RoslynAnalysis.GetRazorDocumentSyntaxHighlighting(_currentFile);
 		var diagnostics = RoslynAnalysis.GetDocumentDiagnostics(_currentFile);
+		var projectDiagnosticsForFile = RoslynAnalysis.GetProjectDiagnosticsForFile(_currentFile);
 		var setTextTask = this.InvokeAsync(async () =>
 		{
 			_fileChangingSuppressBreakpointToggleEvent = true;
@@ -345,7 +354,9 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		await Task.WhenAll(syntaxHighlighting, razorSyntaxHighlighting, setTextTask); // Text must be set before setting syntax highlighting
 		await this.InvokeAsync(async () => SetSyntaxHighlightingModel(await syntaxHighlighting, await razorSyntaxHighlighting));
 		await diagnostics;
-		await this.InvokeAsync(async () => SetDiagnosticsModel(await diagnostics));
+		await this.InvokeAsync(async () => SetDiagnostics(await diagnostics));
+		await projectDiagnosticsForFile;
+		await this.InvokeAsync(async () => SetProjectDiagnostics(await projectDiagnosticsForFile));
 	}
 
 	private async Task OnFileChangedExternallyFromDisk()
@@ -391,7 +402,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	public override void _Draw()
 	{
 		//UnderlineRange(_currentLine, _selectionStartCol, _selectionEndCol, new Color(1, 0, 0));
-		foreach (var sharpIdeDiagnostic in _diagnostics)
+		foreach (var sharpIdeDiagnostic in _fileDiagnostics.ConcatFast(_projectDiagnosticsForFile))
 		{
 			var line = sharpIdeDiagnostic.Span.Start.Line;
 			var startCol = sharpIdeDiagnostic.Span.Start.Character;
@@ -447,9 +458,16 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	}
 
 	[RequiresGodotUiThread]
-	private void SetDiagnosticsModel(ImmutableArray<SharpIdeDiagnostic> diagnostics)
+	private void SetDiagnostics(ImmutableArray<SharpIdeDiagnostic> diagnostics)
 	{
-		_diagnostics = diagnostics;
+		_fileDiagnostics = diagnostics;
+		QueueRedraw();
+	}
+	
+	[RequiresGodotUiThread]
+	private void SetProjectDiagnostics(ImmutableArray<SharpIdeDiagnostic> diagnostics)
+	{
+		_fileDiagnostics = diagnostics;
 		QueueRedraw();
 	}
 
