@@ -53,43 +53,53 @@ public partial class CustomHighlighter : SyntaxHighlighter
 
     private void LinesAdded(long fromLine, int difference, SharpIdeCodeEdit.LineEditOrigin origin)
     {
-        var newRazorDict = new System.Collections.Generic.Dictionary<int, ImmutableArray<SharpIdeRazorClassifiedSpan>>();
+        _razorClassifiedSpansByLine = Rearrange(_razorClassifiedSpansByLine, fromLine, difference, origin);
+        _classifiedSpansByLine = Rearrange(_classifiedSpansByLine, fromLine, difference, origin);
+        return;
 
-        foreach (var kvp in _razorClassifiedSpansByLine)
+        static System.Collections.Generic.Dictionary<int, T> Rearrange<T>(System.Collections.Generic.Dictionary<int, T> existingDictionary, long fromLine, int difference, SharpIdeCodeEdit.LineEditOrigin origin)
         {
-            bool shouldShift =
-                kvp.Key > fromLine ||                // always shift lines after the insertion point
-                (origin == SharpIdeCodeEdit.LineEditOrigin.StartOfLine && kvp.Key == fromLine); // shift current line if origin is Start
+            var newDict = new System.Collections.Generic.Dictionary<int, T>();
+            foreach (var kvp in existingDictionary)
+            {
+                bool shouldShift =
+                    kvp.Key > fromLine ||                // always shift lines after the insertion point
+                    (origin == SharpIdeCodeEdit.LineEditOrigin.StartOfLine && kvp.Key == fromLine); // shift current line if origin is Start
 
-            int newKey = shouldShift ? kvp.Key + difference : kvp.Key;
-            newRazorDict[newKey] = kvp.Value;
+                int newKey = shouldShift ? kvp.Key + difference : kvp.Key;
+                newDict[newKey] = kvp.Value;
+            }
+            return newDict;
         }
-
-        _razorClassifiedSpansByLine = newRazorDict;
     }
     
     private void LinesRemoved(long fromLine, int numberOfLinesRemoved)
     {
-        // everything from 'fromLine' onwards needs to be shifted up by numberOfLinesRemoved
-        var newRazorDict = new System.Collections.Generic.Dictionary<int, ImmutableArray<SharpIdeRazorClassifiedSpan>>();
-    
-        foreach (var kvp in _razorClassifiedSpansByLine)
+        _classifiedSpansByLine = Rearrange(_classifiedSpansByLine, fromLine, numberOfLinesRemoved);
+        _razorClassifiedSpansByLine = Rearrange(_razorClassifiedSpansByLine, fromLine, numberOfLinesRemoved);
+        return;
+
+        static System.Collections.Generic.Dictionary<int, T> Rearrange<T>(System.Collections.Generic.Dictionary<int, T> existingDictionary, long fromLine, int numberOfLinesRemoved)
         {
-            if (kvp.Key < fromLine)
+            // everything from 'fromLine' onwards needs to be shifted up by numberOfLinesRemoved
+            var newDict = new System.Collections.Generic.Dictionary<int, T>();
+            foreach (var kvp in existingDictionary)
             {
-                newRazorDict[kvp.Key] = kvp.Value;
+                if (kvp.Key < fromLine)
+                {
+                    newDict[kvp.Key] = kvp.Value;
+                }
+                else if (kvp.Key == fromLine)
+                {
+                    newDict[kvp.Key - numberOfLinesRemoved] = kvp.Value;
+                }
+                else if (kvp.Key >= fromLine + numberOfLinesRemoved)
+                {
+                    newDict[kvp.Key - numberOfLinesRemoved] = kvp.Value;
+                } 
             }
-            else if (kvp.Key == fromLine)
-            {
-                newRazorDict[kvp.Key - numberOfLinesRemoved] = kvp.Value;
-            }
-            else if (kvp.Key >= fromLine + numberOfLinesRemoved)
-            {
-                newRazorDict[kvp.Key - numberOfLinesRemoved] = kvp.Value;
-            } 
+            return newDict;
         }
-    
-        _razorClassifiedSpansByLine = newRazorDict;
     }
     
     public override Dictionary _GetLineSyntaxHighlighting(int line)
