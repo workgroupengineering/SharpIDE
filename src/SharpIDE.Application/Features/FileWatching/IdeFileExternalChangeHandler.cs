@@ -32,10 +32,13 @@ public class IdeFileExternalChangeHandler
 		var isMoveRatherThanRename = Path.GetDirectoryName(oldFolderPath) != Path.GetDirectoryName(newFolderPath);
 		if (isMoveRatherThanRename)
 		{
-			throw new NotImplementedException("Moving folders is not yet supported. Note that this should only be encountered on Linux.");
+			await _sharpIdeSolutionModificationService.MoveDirectory(sharpIdeFolder, sharpIdeFolder);
 		}
-		var newFolderName = Path.GetFileName(newFolderPath);
-		await _sharpIdeSolutionModificationService.RenameDirectory(sharpIdeFolder, newFolderName);
+		else
+		{
+			var newFolderName = Path.GetFileName(newFolderPath);
+			await _sharpIdeSolutionModificationService.RenameDirectory(sharpIdeFolder, newFolderName);
+		}
 	}
 
 	private async Task OnFolderDeleted(string folderPath)
