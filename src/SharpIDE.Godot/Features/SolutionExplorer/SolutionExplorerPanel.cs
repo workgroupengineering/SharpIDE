@@ -41,49 +41,17 @@ public partial class SolutionExplorerPanel : MarginContainer
 		// Copy
 		if (@event is InputEventKey { Pressed: true, Keycode: Key.C, CtrlPressed: true })
 		{
-			var selected = _tree.GetSelected();
-			if (selected is null) return;
-			var genericMetadata = selected.GetMetadata(0).As<RefCounted?>();
-			if (genericMetadata is RefCountedContainer<SharpIdeFile> fileContainer)
-			{
-				_itemOnClipboard = (fileContainer.Item, ClipboardOperation.Copy);
-			}
+			CopySelectedNodeToSlnExplorerClipboard();
 		}
 		// Cut
 		else if (@event is InputEventKey { Pressed: true, Keycode: Key.X, CtrlPressed: true })
 		{
-			var selected = _tree.GetSelected();
-			if (selected is null) return;
-			var genericMetadata = selected.GetMetadata(0).As<RefCounted?>();
-			if (genericMetadata is RefCountedContainer<SharpIdeFile> fileContainer)
-			{
-				_itemOnClipboard = (fileContainer.Item, ClipboardOperation.Cut);
-			}
+			CutSelectedNodeToSlnExplorerClipboard();
 		}
 		// Paste
 		else if (@event is InputEventKey { Pressed: true, Keycode: Key.V, CtrlPressed: true })
 		{
-			var selected = _tree.GetSelected();
-			if (selected is null || _itemOnClipboard is null) return;
-			var genericMetadata = selected.GetMetadata(0).As<RefCounted?>();
-			IFolderOrProject? folderOrProject = genericMetadata switch
-			{
-				RefCountedContainer<SharpIdeFolder> f => f.Item,
-				RefCountedContainer<SharpIdeProjectModel> p => p.Item,
-				_ => null
-			};
-			if (folderOrProject is null) return;
-			
-			var (fileToPaste, operation) = _itemOnClipboard.Value;
-			_itemOnClipboard = null;
-			_ = Task.GodotRun(async () =>
-			{
-				if (operation is ClipboardOperation.Copy)
-				{
-					await _ideFileOperationsService.CopyFile(folderOrProject, fileToPaste.Path, fileToPaste.Name);
-				}
-			});
-			
+			CopyNodeFromClipboardToSelectedNode();
 		}
 	}
 
