@@ -110,4 +110,17 @@ public class SharpIdeSolutionModificationService(FileChangedService fileChangedS
 		SolutionModel.AllFiles.Remove(file);
 		await _fileChangedService.SharpIdeFileRemoved(file);
 	}
+
+	public async Task<SharpIdeFile> MoveFile(IFolderOrProject destinationParentNode, SharpIdeFile fileToMove)
+	{
+		var oldPath = fileToMove.Path;
+		var newFilePath = Path.Combine(destinationParentNode.ChildNodeBasePath, fileToMove.Name);
+		var parentFolderOrProject = (IFolderOrProject)fileToMove.Parent;
+		parentFolderOrProject.Files.Remove(fileToMove);
+		destinationParentNode.Files.Add(fileToMove);
+		fileToMove.Parent = destinationParentNode;
+		fileToMove.Path = newFilePath;
+		await _fileChangedService.SharpIdeFileMoved(fileToMove, oldPath);
+		return fileToMove;
+	}
 }

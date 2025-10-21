@@ -18,7 +18,7 @@ public partial class SolutionExplorerPanel
             .OfType<RefCountedContainer<SharpIdeFile>>()
             .Select(s => s.Item)
             .ToList(),
-            ClipboardOperation.Copy);
+            clipboardOperation);
     }
     
     private List<TreeItem> GetSelectedTreeItems()
@@ -73,6 +73,14 @@ public partial class SolutionExplorerPanel
                 foreach (var fileToPaste in filesToPaste)
                 {
                     await _ideFileOperationsService.CopyFile(folderOrProject, fileToPaste.Path, fileToPaste.Name);
+                }
+            }
+            // This will blow up if cutting a file into a directory that already has a file with the same name, but I don't really want to handle renaming cut-pasted files for MVP
+            else if (operation is ClipboardOperation.Cut)
+            {
+                foreach (var fileToPaste in filesToPaste)
+                {
+                    await _ideFileOperationsService.MoveFile(folderOrProject, fileToPaste);
                 }
             }
         });
