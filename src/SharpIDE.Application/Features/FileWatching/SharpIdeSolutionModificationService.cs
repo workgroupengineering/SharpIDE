@@ -60,9 +60,37 @@ public class SharpIdeSolutionModificationService(FileChangedService fileChangedS
 		}
 	}
 
-	public async Task MoveDirectory(SharpIdeFolder folder, string newDirectoryPath)
+	public async Task MoveDirectory(IFolderOrProject destinationParentNode, SharpIdeFolder folderToMove)
 	{
+		var oldFolderPath = folderToMove.Path;
+		var newFolderPath = Path.Combine(destinationParentNode.ChildNodeBasePath, folderToMove.Name);
 
+		var parentFolderOrProject = (IFolderOrProject)folderToMove.Parent;
+		parentFolderOrProject.Folders.Remove(folderToMove);
+		destinationParentNode.Folders.Add(folderToMove);
+		folderToMove.Parent = destinationParentNode;
+		folderToMove.Path = newFolderPath;
+
+		var stack = new Stack<SharpIdeFolder>();
+		stack.Push(folderToMove);
+
+		while (stack.Count > 0)
+		{
+			var current = stack.Pop();
+
+			foreach (var subfolder in current.Folders)
+			{
+				subfolder.Path = Path.Combine(current.Path, subfolder.Name);
+				stack.Push(subfolder);
+			}
+
+			foreach (var file in current.Files)
+			{
+				var oldPath = file.Path;
+				file.Path = Path.Combine(current.Path, file.Name);
+				await _fileChangedService.SharpIdeFileMoved(file, oldPath);
+			}
+		}
 	}
 
 	public async Task RenameDirectory(SharpIdeFolder folder, string renamedFolderName)

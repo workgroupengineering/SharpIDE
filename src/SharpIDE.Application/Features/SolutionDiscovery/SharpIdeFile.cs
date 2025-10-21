@@ -6,7 +6,7 @@ using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 
 namespace SharpIDE.Application.Features.SolutionDiscovery;
 
-public class SharpIdeFile : ISharpIdeNode, IChildSharpIdeNode
+public class SharpIdeFile : ISharpIdeNode, IChildSharpIdeNode, IFileOrFolder
 {
 	public required IExpandableSharpIdeNode Parent { get; set; }
 	public required string Path { get; set; }

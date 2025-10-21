@@ -14,11 +14,21 @@ public partial class SolutionExplorerPanel
         var selectedItems = GetSelectedTreeItems();
         if (selectedItems.Count is 0) return;
         _itemsOnClipboard = (selectedItems
-            .Select(item => item.GetMetadata(0).As<RefCounted?>())
-            .OfType<RefCountedContainer<SharpIdeFile>>()
-            .Select(s => s.Item)
+            .Select(item =>
+            {
+                var metadata = item.GetMetadata(0).As<RefCounted?>();
+                IFileOrFolder? result = metadata switch
+                {
+                    RefCountedContainer<SharpIdeFile> file => file.Item,
+                    RefCountedContainer<SharpIdeFolder> folder => folder.Item,
+                    _ => null
+                };
+                return result;
+            })
+            .OfType<IFileOrFolder>()
             .ToList(),
             clipboardOperation);
+        GD.Print($"Solution Explorer - Added {_itemsOnClipboard.Value.Item1.Count} items to clipboard with operation {clipboardOperation}");
     }
     
     private List<TreeItem> GetSelectedTreeItems()
@@ -51,18 +61,18 @@ public partial class SolutionExplorerPanel
         _itemsOnClipboard = null;
     }
 
-    private void CopyNodeFromClipboardToSelectedNode()
+    private void CopyNodesFromClipboardToSelectedNode()
     {
         var selected = _tree.GetSelected();
         if (selected is null || _itemsOnClipboard is null) return;
         var genericMetadata = selected.GetMetadata(0).As<RefCounted?>();
-        IFolderOrProject? folderOrProject = genericMetadata switch
+        IFolderOrProject? destinationFolderOrProject = genericMetadata switch
         {
             RefCountedContainer<SharpIdeFolder> f => f.Item,
             RefCountedContainer<SharpIdeProjectModel> p => p.Item,
             _ => null
         };
-        if (folderOrProject is null) return;
+        if (destinationFolderOrProject is null) return;
 			
         var (filesToPaste, operation) = _itemsOnClipboard.Value;
         _itemsOnClipboard = null;
@@ -70,17 +80,31 @@ public partial class SolutionExplorerPanel
         {
             if (operation is ClipboardOperation.Copy)
             {
-                foreach (var fileToPaste in filesToPaste)
+                foreach (var fileOrFolderToPaste in filesToPaste)
                 {
-                    await _ideFileOperationsService.CopyFile(folderOrProject, fileToPaste.Path, fileToPaste.Name);
+                    if (fileOrFolderToPaste is SharpIdeFolder folderToPaste)
+                    {
+                        await _ideFileOperationsService.CopyDirectory(destinationFolderOrProject, folderToPaste.Path, folderToPaste.Name);
+                    }
+                    else if (fileOrFolderToPaste is SharpIdeFile fileToPaste)
+                    {
+                        await _ideFileOperationsService.CopyFile(destinationFolderOrProject, fileToPaste.Path, fileToPaste.Name);
+                    }
                 }
             }
             // This will blow up if cutting a file into a directory that already has a file with the same name, but I don't really want to handle renaming cut-pasted files for MVP
             else if (operation is ClipboardOperation.Cut)
             {
-                foreach (var fileToPaste in filesToPaste)
+                foreach (var fileOrFolderToPaste in filesToPaste)
                 {
-                    await _ideFileOperationsService.MoveFile(folderOrProject, fileToPaste);
+                    if (fileOrFolderToPaste is SharpIdeFolder folderToPaste)
+                    {
+                        await _ideFileOperationsService.MoveDirectory(destinationFolderOrProject, folderToPaste);
+                    }
+                    else if (fileOrFolderToPaste is SharpIdeFile fileToPaste)
+                    {
+                        await _ideFileOperationsService.MoveFile(destinationFolderOrProject, fileToPaste);
+                    }
                 }
             }
         });

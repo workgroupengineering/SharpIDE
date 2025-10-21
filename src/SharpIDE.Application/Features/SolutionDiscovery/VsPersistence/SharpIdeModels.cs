@@ -22,6 +22,11 @@ public interface IFolderOrProject : IExpandableSharpIdeNode, IChildSharpIdeNode
 	public string Name { get; set; }
 	public string ChildNodeBasePath { get; }
 }
+public interface IFileOrFolder : IChildSharpIdeNode
+{
+	public string Path { get; set; }
+	public string Name { get; set; }
+}
 public interface IChildSharpIdeNode
 {
 	public IExpandableSharpIdeNode Parent { get; set; }

@@ -28,6 +28,36 @@ public class IdeFileOperationsService(SharpIdeSolutionModificationService sharpI
 		await _sharpIdeSolutionModificationService.RemoveDirectory(folder);
 	}
 
+	public async Task CopyDirectory(IFolderOrProject destinationParentNode, string sourceDirectoryPath, string newDirectoryName)
+	{
+		var newDirectoryPath = Path.Combine(destinationParentNode.ChildNodeBasePath, newDirectoryName);
+		CopyAll(new DirectoryInfo(sourceDirectoryPath), new DirectoryInfo(newDirectoryPath));
+		var newFolder = await _sharpIdeSolutionModificationService.AddDirectory(destinationParentNode, newDirectoryName);
+		return;
+
+		static void CopyAll(DirectoryInfo source, DirectoryInfo target)
+		{
+			Directory.CreateDirectory(target.FullName);
+			foreach (var fi in source.GetFiles())
+			{
+				fi.CopyTo(Path.Combine(target.FullName, fi.Name));
+			}
+
+			foreach (var diSourceSubDir in source.GetDirectories())
+			{
+				var nextTargetSubDir = target.CreateSubdirectory(diSourceSubDir.Name);
+				CopyAll(diSourceSubDir, nextTargetSubDir);
+			}
+		}
+	}
+
+	public async Task MoveDirectory(IFolderOrProject destinationParentNode, SharpIdeFolder folderToMove)
+	{
+		var newDirectoryPath = Path.Combine(destinationParentNode.ChildNodeBasePath, folderToMove.Name);
+		Directory.Move(folderToMove.Path, newDirectoryPath);
+		await _sharpIdeSolutionModificationService.MoveDirectory(destinationParentNode, folderToMove);
+	}
+
 	public async Task DeleteFile(SharpIdeFile file)
 	{
 		File.Delete(file.Path);

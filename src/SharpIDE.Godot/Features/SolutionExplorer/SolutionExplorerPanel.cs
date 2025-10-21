@@ -29,7 +29,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 	private TreeItem _rootItem = null!;
 	private enum ClipboardOperation { Cut, Copy }
 
-	private (List<SharpIdeFile>, ClipboardOperation)? _itemsOnClipboard;
+	private (List<IFileOrFolder>, ClipboardOperation)? _itemsOnClipboard;
 	public override void _Ready()
 	{
 		_tree = GetNode<Tree>("Tree");
@@ -52,7 +52,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 		// Paste
 		else if (@event is InputEventKey { Pressed: true, Keycode: Key.V, CtrlPressed: true })
 		{
-			CopyNodeFromClipboardToSelectedNode();
+			CopyNodesFromClipboardToSelectedNode();
 		}
 		else if (@event is InputEventKey { Pressed: true, Keycode: Key.Delete })
 		{
