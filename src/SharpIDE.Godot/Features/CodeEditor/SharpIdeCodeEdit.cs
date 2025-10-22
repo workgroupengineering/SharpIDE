@@ -126,7 +126,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	{
 		_currentFile?.FileContentsChangedExternally.Unsubscribe(OnFileChangedExternally);
 		GlobalEvents.Instance.SolutionAltered.Unsubscribe(OnSolutionAltered);
-		_openTabsFileManager.CloseFile(_currentFile!);
+		if (_currentFile is not null) _openTabsFileManager.CloseFile(_currentFile);
 	}
 
 	private void OnBreakpointToggled(long line)
