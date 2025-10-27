@@ -4,7 +4,7 @@ using SharpIDE.Application.Features.SolutionDiscovery;
 
 namespace SharpIDE.Application.Features.Analysis;
 
-public class IdeCompletionService(RoslynAnalysis roslynAnalysis, FileChangedService fileChangedService)
+public class IdeApplyCompletionService(RoslynAnalysis roslynAnalysis, FileChangedService fileChangedService)
 {
 	private readonly RoslynAnalysis _roslynAnalysis = roslynAnalysis;
 	private readonly FileChangedService _fileChangedService = fileChangedService;

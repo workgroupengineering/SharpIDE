@@ -30,7 +30,7 @@ public partial class DiAutoload : Node
         services.AddScoped<SearchService>();
         services.AddScoped<IdeFileExternalChangeHandler>();
         services.AddScoped<IdeCodeActionService>();
-        services.AddScoped<IdeCompletionService>();
+        services.AddScoped<IdeApplyCompletionService>();
         services.AddScoped<FileChangedService>();
         services.AddScoped<IdeFileWatcher>();
         services.AddScoped<IdeOpenTabsFileManager>();

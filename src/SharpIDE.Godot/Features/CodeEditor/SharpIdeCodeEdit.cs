@@ -53,7 +53,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
     [Inject] private readonly RoslynAnalysis _roslynAnalysis = null!;
     [Inject] private readonly IdeCodeActionService _ideCodeActionService = null!;
     [Inject] private readonly FileChangedService _fileChangedService = null!;
-    [Inject] private readonly IdeCompletionService _ideCompletionService = null!;
+    [Inject] private readonly IdeApplyCompletionService _ideApplyCompletionService = null!;
 	
 	public override void _Ready()
 	{
@@ -423,7 +423,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		var completionItem = selectedText["default_value"].As<RefCountedContainer<CompletionItem>>().Item;
 		_ = Task.GodotRun(async () =>
 		{
-			await _ideCompletionService.ApplyCompletion(_currentFile, completionItem);
+			await _ideApplyCompletionService.ApplyCompletion(_currentFile, completionItem);
 		});
 		CancelCodeCompletion();
 	}
