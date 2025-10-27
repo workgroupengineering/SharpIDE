@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Completion;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.FindSymbols;
 using Microsoft.CodeAnalysis.Host.Mef;
 using Microsoft.CodeAnalysis.MSBuild;
@@ -791,7 +792,25 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 			return (null, null);
 		}
 
-		var linePositionSpan = root.SyntaxTree.GetLineSpan(node.Span).Span;
+		var span = node switch
+		{
+			MethodDeclarationSyntax methodDecl => methodDecl.Identifier.Span,
+			ClassDeclarationSyntax classDecl => classDecl.Identifier.Span,
+			StructDeclarationSyntax structDecl => structDecl.Identifier.Span,
+			InterfaceDeclarationSyntax interfaceDecl => interfaceDecl.Identifier.Span,
+			EnumDeclarationSyntax enumDecl => enumDecl.Identifier.Span,
+			DelegateDeclarationSyntax delegateDecl => delegateDecl.Identifier.Span,
+			ConstructorDeclarationSyntax constructorDecl => constructorDecl.Identifier.Span,
+			DestructorDeclarationSyntax destructorDecl => destructorDecl.Identifier.Span,
+			PropertyDeclarationSyntax propDecl => propDecl.Identifier.Span,
+			EventDeclarationSyntax eventDecl => eventDecl.Identifier.Span,
+			VariableDeclaratorSyntax variableDecl => variableDecl.Identifier.Span,
+			AccessorDeclarationSyntax accessorDecl => accessorDecl.Keyword.Span,
+			IndexerDeclarationSyntax indexerDecl => indexerDecl.ThisKeyword.Span,
+			_ => node.Span
+		};
+
+		var linePositionSpan = root.SyntaxTree.GetLineSpan(span).Span;
 		_logger.LogInformation("Symbol found: {SymbolName} ({SymbolKind}) - {SymbolDisplayString}", symbol.Name, symbol.Kind, symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat));
 		return (symbol, linePositionSpan);
 	}

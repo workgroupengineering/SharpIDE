@@ -268,9 +268,11 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		symbolNameHoverWindow.PopupWindow = true;
 		symbolNameHoverWindow.MinimizeDisabled = true;
 		symbolNameHoverWindow.MaximizeDisabled = true;
+		// To debug location, make type a PopupPanel, and uncomment
+		//symbolNameHoverWindow.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color(1, 0, 0, 0.5f) });
 		
 		var startSymbolCharRect = GetRectAtLineColumn(linePositionSpan.Value.Start.Line, linePositionSpan.Value.Start.Character + 1);
-		var endSymbolCharRect = GetRectAtLineColumn(linePositionSpan.Value.End.Line, linePositionSpan.Value.End.Character + 1);
+		var endSymbolCharRect = GetRectAtLineColumn(linePositionSpan.Value.End.Line, linePositionSpan.Value.End.Character);
 		symbolNameHoverWindow.Size = new Vector2I(endSymbolCharRect.End.X - startSymbolCharRect.Position.X, lineHeight);
 		
 		var globalPosition = GetGlobalPosition();
