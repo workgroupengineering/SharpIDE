@@ -17,10 +17,9 @@ public partial class SharpIdeCodeEdit
     private readonly Texture2D _enumIcon = ResourceLoader.Load<Texture2D>("uid://8mdxo65qepqv");
     private readonly Texture2D _delegateIcon = ResourceLoader.Load<Texture2D>("uid://c83pv25rdescy");
 
-    private Texture2D? GetIconForCompletion(SymbolKind? symbolKind, TypeKind? typeKind, Accessibility? accessibility, bool isKeyword, bool isExtensionMethod)
+    private Texture2D? GetIconForCompletion(SymbolKind? symbolKind, TypeKind? typeKind, Accessibility? accessibility, bool isKeyword)
     {
         if (isKeyword) return _keywordIcon;
-        if (isExtensionMethod) return _csharpMethodIcon;
         var texture = (symbolKind, typeKind, accessibility) switch
         {
             (SymbolKind.Method, _, _) => _csharpMethodIcon,
