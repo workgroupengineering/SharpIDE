@@ -60,13 +60,19 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
 	    "_", "<", ".", "#"
     ];
+    private readonly List<string> _additionalCodeCompletionPrefixes =
+	[
+		//"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+		//"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+	    "(", ",", "=", "\t"
+	];
 
 	public override void _Ready()
 	{
 		// _filter_code_completion_candidates_impl uses these prefixes to determine where the completions menu is allowed to show.
 		// It is quite annoying as we cannot override it via _FilterCodeCompletionCandidates, as we would lose the filtering as well.
 		// Currently, it is not possible to show completions on a new line at col 0
-		CodeCompletionPrefixes = [.._codeCompletionTriggers, "(", ",", "=", "\t"];
+		CodeCompletionPrefixes = [.._codeCompletionTriggers, .._additionalCodeCompletionPrefixes];
 		SyntaxHighlighter = _syntaxHighlighter;
 		_popupMenu = GetNode<PopupMenu>("CodeFixesMenu");
 		_popupMenu.IdPressed += OnCodeFixSelected;
@@ -335,16 +341,46 @@ public partial class SharpIdeCodeEdit : CodeEdit
 	// 	return base._FilterCodeCompletionCandidates(candidates);
 	// }
 
-	// public override void _GuiInput(InputEvent @event)
-	// {
-	// 	if (@event.IsActionPressed("ui_text_completion_query"))
-	// 	{
-	// 		GD.Print("Entering CompletionQueryBuiltin _GuiInput");
-	// 		AcceptEvent();
-	// 		//GetViewport().SetInputAsHandled();
- //            Callable.From(() => RequestCodeCompletion(true)).CallDeferred();
-	// 	}
-	// }
+	public override void _GuiInput(InputEvent @event)
+	{
+		if (@event is InputEventKey { Pressed: true } keyEvent)
+		{
+			var codeCompletionSelectedIndex = GetCodeCompletionSelectedIndex();
+			var isCodeCompletionPopupOpen = codeCompletionSelectedIndex is not -1;
+			if (keyEvent is { Keycode: Key.Backspace, CtrlPressed: false })
+			{
+				
+			}
+			if (keyEvent is { Keycode: Key.Delete, CtrlPressed: false })
+			{
+				
+			}
+			else if (keyEvent.Unicode != 0)
+			{
+				var unicodeString = char.ConvertFromUtf32((int)keyEvent.Unicode);
+				if (isCodeCompletionPopupOpen && unicodeString is " ")
+				{
+					Callable.From(() => CancelCodeCompletion()).CallDeferred();
+				}
+				else if (isCodeCompletionPopupOpen is false && _codeCompletionTriggers.Contains(unicodeString, StringComparer.OrdinalIgnoreCase))
+				{
+					void OnAction()
+					{
+						TextChanged -= OnAction;
+						Callable.From(() => RequestCodeCompletion(true)).CallDeferred();
+					}
+					TextChanged += OnAction; // We need to wait for the text to actually change before requesting completions
+				}
+			}
+		}
+		// else if (@event.IsActionPressed("ui_text_completion_query"))
+		// {
+		// 	GD.Print("Entering CompletionQueryBuiltin _GuiInput");
+		// 	AcceptEvent();
+		// 	//GetViewport().SetInputAsHandled();
+  //           Callable.From(() => RequestCodeCompletion(true)).CallDeferred();
+		// }
+	}
 
 	public override void _UnhandledKeyInput(InputEvent @event)
 	{
