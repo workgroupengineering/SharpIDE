@@ -502,37 +502,46 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			var linePos = new LinePosition(caretLine, caretColumn);
 				
 			var completionsResult = await _roslynAnalysis.GetCodeCompletionsForDocumentAtPosition(_currentFile, linePos);
+			var completionOptions = new List<(CodeCompletionKind kind, string displayText, Texture2D? icon, RefCountedContainer<IdeCompletionItem> refCountedContainer)>(completionsResult.CompletionList.ItemsList.Count);
+
+			foreach (var completionItem in completionsResult.CompletionList.ItemsList)
+			{
+				var symbolKindString = CollectionExtensions.GetValueOrDefault(completionItem.Properties, "SymbolKind");
+				var symbolKind = symbolKindString is null ? null : (SymbolKind?)int.Parse(symbolKindString);
+				var wellKnownTags = completionItem.Tags;
+				var typeKindString = completionItem.Tags[0];
+				var accessibilityModifierString = completionItem.Tags.Skip(1).FirstOrDefault(); // accessibility is not always supplied, and I don't think there's actually any guarantee on the order of tags. See WellKnownTags and WellKnownTagArrays
+				TypeKind? typeKind = Enum.TryParse<TypeKind>(typeKindString, out var tk) ? tk : null;
+				Accessibility? accessibilityModifier = Enum.TryParse<Accessibility>(accessibilityModifierString, out var am) ? am : null;
+				var godotCompletionType = symbolKind switch
+				{
+					SymbolKind.Method => CodeCompletionKind.Function,
+					SymbolKind.NamedType => CodeCompletionKind.Class,
+					SymbolKind.Local => CodeCompletionKind.Variable,
+					SymbolKind.Property => CodeCompletionKind.Member,
+					SymbolKind.Field => CodeCompletionKind.Member,
+					_ => CodeCompletionKind.PlainText
+				};
+				var isKeyword = wellKnownTags.Contains(WellKnownTags.Keyword);
+				var isExtensionMethod = wellKnownTags.Contains(WellKnownTags.ExtensionMethod);
+				var isMethod = wellKnownTags.Contains(WellKnownTags.Method);
+				if (symbolKind is null && (isMethod || isExtensionMethod)) symbolKind = SymbolKind.Method;
+				var icon = GetIconForCompletion(symbolKind, typeKind, accessibilityModifier, isKeyword);
+				var ideItem = new IdeCompletionItem(completionItem, completionsResult.Document);
+				var refContainer = new RefCountedContainer<IdeCompletionItem>(ideItem);
+
+				completionOptions.Add((godotCompletionType, completionItem.DisplayText, icon, refContainer));
+			}
 			await this.InvokeAsync(() =>
 			{
-				foreach (var completionItem in completionsResult.CompletionList.ItemsList)
+				foreach (var (godotCompletionType, displayText, icon, refCountedContainer) in completionOptions)
 				{
-					var symbolKindString = CollectionExtensions.GetValueOrDefault(completionItem.Properties, "SymbolKind");
-					var symbolKind = symbolKindString is null ? null : (SymbolKind?)int.Parse(symbolKindString);
-					var wellKnownTags = completionItem.Tags;
-					var typeKindString = completionItem.Tags[0];
-					var accessibilityModifierString = completionItem.Tags.Skip(1).FirstOrDefault(); // accessibility is not always supplied, and I don't think there's actually any guarantee on the order of tags. See WellKnownTags and WellKnownTagArrays
-					TypeKind? typeKind = Enum.TryParse<TypeKind>(typeKindString, out var tk) ? tk : null;
-					Accessibility? accessibilityModifier = Enum.TryParse<Accessibility>(accessibilityModifierString, out var am) ? am : null;
-					var godotCompletionType = symbolKind switch
-					{
-						SymbolKind.Method => CodeCompletionKind.Function,
-						SymbolKind.NamedType => CodeCompletionKind.Class,
-						SymbolKind.Local => CodeCompletionKind.Variable,
-						SymbolKind.Property => CodeCompletionKind.Member,
-						SymbolKind.Field => CodeCompletionKind.Member,
-						_ => CodeCompletionKind.PlainText
-					};
-					var isKeyword = wellKnownTags.Contains(WellKnownTags.Keyword);
-					var isExtensionMethod = wellKnownTags.Contains(WellKnownTags.ExtensionMethod);
-					var isMethod = wellKnownTags.Contains(WellKnownTags.Method);
-					if (symbolKind is null && (isMethod || isExtensionMethod)) symbolKind = SymbolKind.Method;
-					var icon = GetIconForCompletion(symbolKind, typeKind, accessibilityModifier, isKeyword);
-					AddCodeCompletionOption(godotCompletionType, completionItem.DisplayText, completionItem.DisplayText, icon: icon, value: new RefCountedContainer<IdeCompletionItem>(new IdeCompletionItem(completionItem, completionsResult.Document)));
+					AddCodeCompletionOption(godotCompletionType, displayText, displayText, icon: icon, value: refCountedContainer);
 				}
 				UpdateCodeCompletionOptions(true);
 				//RequestCodeCompletion(true);
-				GD.Print($"Found {completionsResult.CompletionList.ItemsList.Count} completions, displaying menu");
 			});
+			GD.Print($"Found {completionsResult.CompletionList.ItemsList.Count} completions, displaying menu");
 		});
 	}
 	
