@@ -1,4 +1,5 @@
 ﻿using Godot;
+using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Text;
 using SharpIDE.Application.Features.Analysis;
 
@@ -17,6 +18,7 @@ public partial class SharpIdeCodeEdit
             GD.Print("No symbol found at cursor position for renaming.");
             return;
         }
+        if (roslynSymbol.IsFromSource() is false) return;
         
         var renameSymbolDialog = _renameSymbolDialogScene.Instantiate<RenameSymbolDialog>();
         renameSymbolDialog.SymbolName = roslynSymbol.Name;
