@@ -29,10 +29,14 @@ public partial class ForwardBackwardButtonContainer : HBoxContainer
     private void OnBackwardButtonPressed()
     {
         _navigationHistoryService.GoBack();
+        var current = _navigationHistoryService.Current;
+        GodotGlobalEvents.Instance.FileExternallySelected.InvokeParallelFireAndForget(current!.File, current.LinePosition);
     }
 
     private void OnForwardButtonPressed()
     {
         _navigationHistoryService.GoForward();
+        var current = _navigationHistoryService.Current;
+        GodotGlobalEvents.Instance.FileExternallySelected.InvokeParallelFireAndForget(current!.File, current.LinePosition);
     }
 }

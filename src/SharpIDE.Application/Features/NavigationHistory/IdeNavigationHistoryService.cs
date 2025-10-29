@@ -12,9 +12,13 @@ public class IdeNavigationHistoryService
 	public bool CanGoBack => _backStack.Count > 0;
 	public bool CanGoForward => _forwardStack.Count > 0;
 	public IdeNavigationLocation? Current => _current;
+	public bool EnableRecording { get; set; } = false;
+
+	public void StartRecording() => EnableRecording = true;
 
 	public void RecordNavigation(SharpIdeFile file, SharpIdeFileLinePosition linePosition)
 	{
+		if (EnableRecording is false) return;
 		var location = new IdeNavigationLocation(file, linePosition);
 		if (location == _current)
 		{
@@ -29,13 +33,6 @@ public class IdeNavigationHistoryService
 		_forwardStack.Clear();
 	}
 
-	public void ClearHistory()
-	{
-		_backStack.Clear();
-		_forwardStack.Clear();
-		_current = null;
-	}
-
 	public void GoBack()
 	{
 		if (!CanGoBack) throw new InvalidOperationException("Cannot go back, no history available.");
@@ -44,7 +41,6 @@ public class IdeNavigationHistoryService
 			_forwardStack.Push(_current);
 		}
 		_current = _backStack.Pop();
-		// TODO: Fire event
 	}
 
 	public void GoForward()
@@ -56,10 +52,7 @@ public class IdeNavigationHistoryService
 		}
 
 		_current = _forwardStack.Pop();
-		// TODO: Fire event
 	}
 }
 
-public record IdeNavigationLocation(SharpIdeFile File, SharpIdeFileLinePosition LinePosition)
-{
-}
+public record IdeNavigationLocation(SharpIdeFile File, SharpIdeFileLinePosition LinePosition);

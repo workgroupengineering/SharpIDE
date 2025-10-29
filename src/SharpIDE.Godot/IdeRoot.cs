@@ -170,7 +170,7 @@ public partial class IdeRoot : Control
 				{
 					await GodotGlobalEvents.Instance.FileExternallySelected.InvokeParallelAsync(file, linePosition);
 				}
-				_navigationHistoryService.ClearHistory();
+				_navigationHistoryService.StartRecording();
 				// Select the selected tab
 				var selectedFile = filesToOpen.SingleOrDefault(f => f.IsSelected);
 				if (selectedFile.Item1 is not null) await GodotGlobalEvents.Instance.FileExternallySelected.InvokeParallelAsync(selectedFile.Item1, selectedFile.Item2);
