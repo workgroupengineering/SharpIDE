@@ -24,6 +24,9 @@ public partial class SolutionExplorerPanel : MarginContainer
 	public Texture2D CsprojIcon { get; set; } = null!;
 	[Export]
 	public Texture2D SlnIcon { get; set; } = null!;
+
+	private readonly Color _gitNewFileColour = new Color("50964c");
+	private readonly Color _gitEditedFileColour = new Color("5988b3");
 	
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 	private Tree _tree = null!;
