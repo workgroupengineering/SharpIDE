@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Publicize Include="ObservableCollections" />
     <Publicize Include="Microsoft.CodeAnalysis.Remote.Razor" />
     <Publicize Include="Microsoft.CodeAnalysis.Razor.Workspaces" />
     <Publicize Include="Microsoft.CodeAnalysis.Razor.Compiler" />

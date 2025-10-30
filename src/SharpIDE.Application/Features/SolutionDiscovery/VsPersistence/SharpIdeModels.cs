@@ -17,8 +17,8 @@ public interface IExpandableSharpIdeNode
 
 public interface IFolderOrProject : IExpandableSharpIdeNode, IChildSharpIdeNode
 {
-	public ObservableHashSet<SharpIdeFolder> Folders { get; init; }
-	public ObservableHashSet<SharpIdeFile> Files { get; init; }
+	public ObservableSortedSet<SharpIdeFolder> Folders { get; init; }
+	public ObservableSortedSet<SharpIdeFile> Files { get; init; }
 	public string Name { get; set; }
 	public string ChildNodeBasePath { get; }
 }
@@ -96,8 +96,8 @@ public class SharpIdeProjectModel : ISharpIdeNode, IExpandableSharpIdeNode, IChi
 	public required string Name { get; set; }
 	public required string FilePath { get; set; }
 	public string ChildNodeBasePath => Path.GetDirectoryName(FilePath)!;
-	public required ObservableHashSet<SharpIdeFolder> Folders { get; init; }
-	public required ObservableHashSet<SharpIdeFile> Files { get; init; }
+	public required ObservableSortedSet<SharpIdeFolder> Folders { get; init; }
+	public required ObservableSortedSet<SharpIdeFile> Files { get; init; }
 	public bool Expanded { get; set; }
 	public required IExpandableSharpIdeNode Parent { get; set; }
 	public bool Running { get; set; }
@@ -110,8 +110,8 @@ public class SharpIdeProjectModel : ISharpIdeNode, IExpandableSharpIdeNode, IChi
 		Parent = parent;
 		Name = projectModel.Model.ActualDisplayName;
 		FilePath = projectModel.FullFilePath;
-		Files = new ObservableHashSet<SharpIdeFile>(TreeMapperV2.GetFiles(projectModel.FullFilePath, this, allFiles));
-		Folders = new ObservableHashSet<SharpIdeFolder>(TreeMapperV2.GetSubFolders(projectModel.FullFilePath, this, allFiles, allFolders));
+		Files = new ObservableSortedSet<SharpIdeFile>(TreeMapperV2.GetFiles(projectModel.FullFilePath, this, allFiles), SharpIdeFileComparer.Instance);
+		Folders = new ObservableSortedSet<SharpIdeFolder>(TreeMapperV2.GetSubFolders(projectModel.FullFilePath, this, allFiles, allFolders), SharpIdeFolderComparer.Instance);
 		MsBuildEvaluationProjectTask = ProjectEvaluation.GetProject(projectModel.FullFilePath);
 		allProjects.Add(this);
 	}
