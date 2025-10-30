@@ -291,7 +291,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 		fileItem.SetCustomColor(0, GetColorForGitStatus(sharpIdeFile.GitStatus));
 		fileItem.SetMetadata(0, new RefCountedContainer<SharpIdeFile>(sharpIdeFile));
 		
-		Observable.EveryValueChanged(sharpIdeFile, folder => folder.Name)
+		Observable.EveryValueChanged(sharpIdeFile, file => file.Name)
 			.Skip(1).SubscribeAwait(async (s, ct) =>
 			{
 				await this.InvokeAsync(() => fileItem.SetText(0, s));
