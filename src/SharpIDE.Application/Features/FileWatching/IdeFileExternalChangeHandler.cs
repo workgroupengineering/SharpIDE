@@ -90,14 +90,12 @@ public class IdeFileExternalChangeHandler
 
 	private async Task OnFileCreated(string filePath)
 	{
-		// Create a new sharpIdeFile, update SolutionModel
 		var sharpIdeFile = SolutionModel.AllFiles.SingleOrDefault(f => f.Path == filePath);
 		if (sharpIdeFile is not null)
 		{
 			// It was likely already created via a parent folder creation
 			return;
 		}
-		// If sharpIdeFile is null, it means the file was created externally, and we need to create it and add it to the solution model
 		var createdFileDirectory = Path.GetDirectoryName(filePath)!;
 
 		var containingFolderOrProject = (IFolderOrProject?)SolutionModel.AllFolders.SingleOrDefault(f => f.ChildNodeBasePath == createdFileDirectory) ?? SolutionModel.AllProjects.SingleOrDefault(s => s.ChildNodeBasePath == createdFileDirectory);
@@ -107,21 +105,7 @@ public class IdeFileExternalChangeHandler
 			return;
 		}
 
-		sharpIdeFile = new SharpIdeFile(filePath, Path.GetFileName(filePath), containingFolderOrProject, []);
-
-		var correctInsertionPosition = containingFolderOrProject.Files.list.BinarySearch(sharpIdeFile, SharpIdeFileComparer.Instance);
-		if (correctInsertionPosition < 0)
-		{
-			correctInsertionPosition = ~correctInsertionPosition;
-		}
-		else
-		{
-			throw new InvalidOperationException("File already exists in the containing folder or project");
-		}
-		containingFolderOrProject.Files.Insert(correctInsertionPosition, sharpIdeFile);
-		SolutionModel.AllFiles.Add(sharpIdeFile);
-
-		await _fileChangedService.SharpIdeFileAdded(sharpIdeFile, await File.ReadAllTextAsync(filePath));
+		await _sharpIdeSolutionModificationService.CreateFile(containingFolderOrProject, filePath, Path.GetFileName(filePath), await File.ReadAllTextAsync(filePath));
 	}
 
 	private async Task OnFileChanged(string filePath)

@@ -125,7 +125,18 @@ public class SharpIdeSolutionModificationService(FileChangedService fileChangedS
 	public async Task<SharpIdeFile> CreateFile(IFolderOrProject parentNode, string newFilePath, string fileName, string contents)
 	{
 		var sharpIdeFile = new SharpIdeFile(newFilePath, fileName, parentNode, []);
-		parentNode.Files.Add(sharpIdeFile);
+
+		var correctInsertionPosition = parentNode.Files.list.BinarySearch(sharpIdeFile, SharpIdeFileComparer.Instance);
+		if (correctInsertionPosition < 0)
+		{
+			correctInsertionPosition = ~correctInsertionPosition;
+		}
+		else
+		{
+			throw new InvalidOperationException("File already exists in the containing folder or project");
+		}
+
+		parentNode.Files.Insert(correctInsertionPosition, sharpIdeFile);
 		SolutionModel.AllFiles.Add(sharpIdeFile);
 		await _fileChangedService.SharpIdeFileAdded(sharpIdeFile, contents);
 		return sharpIdeFile;
