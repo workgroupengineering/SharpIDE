@@ -64,7 +64,12 @@ text = "Installed Packages in Application: 4"
 
 [node name="InstalledPackagesItemList" type="ItemList" parent="VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
+auto_height = true
+item_count = 4
+item_0/text = "OpenTelemetry.Exporter.OpenTelemetryProtocol"
+item_1/text = "OpenTelemetry.Extensions.Hosting"
+item_2/text = "OpenTelemetry.Instrumentation.Http"
+item_3/text = "OpenTelemetry.Instrumentation.Runtime"
 
 [node name="Label2" type="Label" parent="VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
@@ -72,7 +77,11 @@ text = "Implicitly Installed Packages in Application: 10"
 
 [node name="ImplicitlyInstalledPackagesItemList" type="ItemList" parent="VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
+auto_height = true
+item_count = 3
+item_0/text = "Microsoft.Extensions.Configuration"
+item_1/text = "Microsoft.Extensions.Configuration.Abstractions"
+item_2/text = "Microsoft.Extensions.Configuration.Binder"
 
 [node name="Label3" type="Label" parent="VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
@@ -80,7 +89,10 @@ text = "Available Packages: Top 100"
 
 [node name="AvailablePackagesItemList" type="ItemList" parent="VBoxContainer/MarginContainer2/HBoxContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
-size_flags_vertical = 3
+auto_height = true
+item_count = 2
+item_0/text = "Azure.Core"
+item_1/text = "coverlet.collector"
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="VBoxContainer/MarginContainer2/HBoxContainer"]
 layout_mode = 2
