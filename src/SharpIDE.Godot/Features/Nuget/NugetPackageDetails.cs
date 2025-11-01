@@ -10,6 +10,8 @@ public partial class NugetPackageDetails : VBoxContainer
 
     private IdePackageResult? _package;
     
+    private readonly Texture2D _defaultIconTextureRect = ResourceLoader.Load<Texture2D>("uid://b5ih61vdjv5e6");
+    
     [Inject] private readonly NugetPackageIconCacheService _nugetPackageIconCacheService = null!;
     public override void _Ready()
     {
@@ -27,10 +29,7 @@ public partial class NugetPackageDetails : VBoxContainer
             Visible = true;
         });
         var (iconBytes, iconFormat) = await iconTask;
-        var imageTexture = ImageTextureHelper.GetImageTextureFromBytes(iconBytes, iconFormat);
-        if (imageTexture is not null)
-        {
-            await this.InvokeAsync(() => _packageIconTextureRect.Texture = imageTexture);
-        }
+        var imageTexture = ImageTextureHelper.GetImageTextureFromBytes(iconBytes, iconFormat) ?? _defaultIconTextureRect;
+        await this.InvokeAsync(() => _packageIconTextureRect.Texture = imageTexture);
     }
 }
