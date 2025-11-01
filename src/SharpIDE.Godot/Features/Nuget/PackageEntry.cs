@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Godot;
 using SharpIDE.Application.Features.Nuget;
 
@@ -11,11 +12,20 @@ public partial class PackageEntry : MarginContainer
     private HBoxContainer _sourceNamesContainer = null!;
     private TextureRect _packageIconTextureRect = null!;
     
-    private static readonly Color Source_NugetOrg_Color = new Color("629655");
+    private static readonly Color Source_1_Color = new Color("629655");
     private static readonly Color Source_2_Color = new Color("008989");
     private static readonly Color Source_3_Color = new Color("8d75a8");
     private static readonly Color Source_4_Color = new Color("966a00");
     private static readonly Color Source_5_Color = new Color("efaeae");
+    
+    private static readonly ImmutableArray<Color> SourceColors =
+    [
+        Source_1_Color,
+        Source_2_Color,
+        Source_3_Color,
+        Source_4_Color,
+        Source_5_Color
+    ];
     
     [Inject] private readonly NugetPackageIconCacheService _nugetPackageIconCacheService = null!;
     
@@ -56,16 +66,11 @@ public partial class PackageEntry : MarginContainer
             }
         });
         
-        foreach (var source in PackageResult.PackageSources)
+        foreach (var (index, source) in PackageResult.PackageSources.Index())
         {
             var label = new Label { Text = source.Name };
-            label.AddThemeColorOverride(ThemeStringNames.FontColor, source.Name switch
-            {
-                // TODO: Make dynamic
-                "nuget.org" => Source_NugetOrg_Color,
-                "Microsoft Visual Studio Offline Packages" => Source_2_Color,
-                _ => Source_3_Color
-            });
+            var labelColour = SourceColors[index % SourceColors.Length];
+            label.AddThemeColorOverride(ThemeStringNames.FontColor, labelColour);
             _sourceNamesContainer.AddChild(label);
         }
     }
