@@ -13,6 +13,8 @@ public partial class NugetPanel : Control
     public SharpIdeSolutionModel? Solution { get; set; }
     
     [Inject] private readonly NugetClientService _nugetClientService = null!;
+    
+    private readonly PackedScene _packageEntryScene = ResourceLoader.Load<PackedScene>("uid://cqc2xlt81ju8s");
 
     public override void _Ready()
     {
@@ -25,6 +27,20 @@ public partial class NugetPanel : Control
             await Task.Delay(300);
             var result = await _nugetClientService.GetTop100Results(Solution!.DirectoryPath);
             ;
+            await this.InvokeAsync(() => _availablePackagesItemList.QueueFreeChildren());
+            var scenes = result.Select(s =>
+            {
+                var scene = _packageEntryScene.Instantiate<PackageEntry>();
+                scene.PackageResult = s;
+                return scene;
+            }).ToList();
+            await this.InvokeAsync(() =>
+            {
+                foreach (var scene in scenes)
+                {
+                    _availablePackagesItemList.AddChild(scene);
+                }
+            });
         });
     }
 }

@@ -1,5 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://cqc2xlt81ju8s"]
+[gd_scene load_steps=5 format=3 uid="uid://cqc2xlt81ju8s"]
 
+[ext_resource type="Script" uid="uid://cwriljtokcujb" path="res://Features/Nuget/PackageEntry.cs" id="1_gehww"]
 [ext_resource type="Texture2D" uid="uid://b5ih61vdjv5e6" path="res://Features/LeftSideBar/Resources/Nuget.svg" id="1_kw1n7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6ov2c"]
@@ -21,6 +22,7 @@ offset_top = -4.0
 offset_bottom = 4.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_gehww")
 
 [node name="Button" type="Button" parent="."]
 custom_minimum_size = Vector2(0, 26)
@@ -45,7 +47,8 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 3
 theme_override_constants/margin_bottom = 4
 
-[node name="TextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/MarginContainer"]
+[node name="IconTextureRect" type="TextureRect" parent="MarginContainer/HBoxContainer/MarginContainer"]
+unique_name_in_owner = true
 layout_mode = 2
 texture = ExtResource("1_kw1n7")
 expand_mode = 3
@@ -63,7 +66,11 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.6706895, 0.6706895, 0.6706895, 1)
 text = "1.12.0"
 
-[node name="SourceNameLabel" type="Label" parent="MarginContainer/HBoxContainer"]
+[node name="SourceNamesHBoxContainer" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="SourceNameLabel" type="Label" parent="MarginContainer/HBoxContainer/SourceNamesHBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.38431373, 0.5882353, 0.33333334, 1)
@@ -73,7 +80,7 @@ text = "nuget"
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="NewestVersionLabel" type="Label" parent="MarginContainer/HBoxContainer"]
+[node name="LatestVersionLabel" type="Label" parent="MarginContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.16862746, 0.6666667, 0.9098039, 1)

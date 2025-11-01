@@ -24,7 +24,7 @@ public class NugetClientService
 		foreach (var source in packageSources)
 		{
 			var repository = Repository.Factory.GetCoreV3(source.Source);
-			var searchResource = await repository.GetResourceAsync<PackageSearchResource>(cancellationToken);
+			var searchResource = await repository.GetResourceAsync<PackageSearchResource>(cancellationToken).ConfigureAwait(false);
 
 			if (searchResource == null)
 				continue;
@@ -36,7 +36,7 @@ public class NugetClientService
 				skip: 0,
 				take: 100,
 				log: logger,
-				cancellationToken: cancellationToken);
+				cancellationToken: cancellationToken).ConfigureAwait(false);
 
 			packagesResult.AddRange(results.Select(s => new IdePackageResult(s, [source])));
 		}
@@ -55,7 +55,7 @@ public class NugetClientService
 			foreach (var source in packageSources.Except(package.PackageSources).ToList())
 			{
 				var repository = Repository.Factory.GetCoreV3(source.Source);
-				var searchResource = await repository.GetResourceAsync<PackageSearchResource>(cancellationToken);
+				var searchResource = await repository.GetResourceAsync<PackageSearchResource>(cancellationToken).ConfigureAwait(false);
 
 				if (searchResource == null)
 					continue;
@@ -68,7 +68,7 @@ public class NugetClientService
 					skip: 0,
 					take: 2,
 					log: logger,
-					cancellationToken: cancellationToken);
+					cancellationToken: cancellationToken).ConfigureAwait(false);
 				var foundPackage = results.SingleOrDefault(r => r.Identity.Id.Equals(packageId, StringComparison.OrdinalIgnoreCase));
 				if (foundPackage != null)
 				{
