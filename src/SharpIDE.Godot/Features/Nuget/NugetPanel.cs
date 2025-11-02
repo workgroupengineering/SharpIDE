@@ -131,13 +131,20 @@ public partial class NugetPanel : Control
             scene.PackageSelected += OnPackageSelected;
             return scene;
         }).ToList();
+        var transitiveScenes = scenes.Where(s => s.PackageResult.InstalledNugetPackageInfo!.IsTransitive).ToList();
+        var directScenes = scenes.Except(transitiveScenes).ToList();
         await this.InvokeAsync(() =>
         {
-            foreach (var scene in scenes)
+            foreach (var transitiveScene in transitiveScenes)
             {
-                var container = scene.PackageResult.InstalledNugetPackageInfo!.IsTransitive ? _implicitlyInstalledPackagesItemList : _installedPackagesVboxContainer;
-                container.AddChild(scene);
+                _implicitlyInstalledPackagesItemList.AddChild(transitiveScene);
             }
+            foreach (var directScene in directScenes)
+            {
+                _installedPackagesVboxContainer.AddChild(directScene);
+            }
+            _installedPackagesResultCountLabel.Text = directScenes.Count.ToString();
+            _implicitlyInstalledPackagesResultCountLabel.Text = transitiveScenes.Count.ToString();
         });
     }
 }
