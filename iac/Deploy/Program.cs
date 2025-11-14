@@ -23,6 +23,7 @@ builder.Services.AddParallelPipelines(
 );
 builder.Services
 	.AddStep<RestoreAndBuildStep>()
+	.AddStep<CreateWindowsRelease>()
 	;
 
 using var host = builder.Build();
