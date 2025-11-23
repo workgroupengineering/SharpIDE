@@ -300,7 +300,7 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		_logger.LogInformation("RoslynAnalysis: Solution diagnostics updated in {ElapsedMilliseconds}ms", timer.ElapsedMilliseconds);
 	}
 
-	public async Task<ImmutableArray<Diagnostic>> GetProjectDiagnostics(SharpIdeProjectModel projectModel, CancellationToken cancellationToken = default)
+	public async Task<ImmutableArray<SharpIdeDiagnostic>> GetProjectDiagnostics(SharpIdeProjectModel projectModel, CancellationToken cancellationToken = default)
 	{
 		using var _ = SharpIdeOtel.Source.StartActivity($"{nameof(RoslynAnalysis)}.{nameof(GetProjectDiagnostics)}");
 		await _solutionLoadedTcs.Task;
@@ -308,8 +308,14 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		var compilation = await project.GetCompilationAsync(cancellationToken);
 		Guard.Against.Null(compilation, nameof(compilation));
 
-		var diagnostics = compilation.GetDiagnostics(cancellationToken);
-		diagnostics = diagnostics.Where(d => d.Severity is not DiagnosticSeverity.Hidden).ToImmutableArray();
+		var diagnostics = compilation.GetDiagnostics(cancellationToken)
+			.Where(d => d.Severity is not DiagnosticSeverity.Hidden)
+			.Select(d =>
+			{
+				var mappedFileLinePositionSpan = d.Location.SourceTree!.GetMappedLineSpan(d.Location.SourceSpan);
+				return new SharpIdeDiagnostic(mappedFileLinePositionSpan.Span, d, mappedFileLinePositionSpan.Path);
+			})
+			.ToImmutableArray();
 		return diagnostics;
 	}
 
@@ -327,7 +333,11 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		var syntaxTree = compilation.SyntaxTrees.Single(s => s.FilePath == document.FilePath);
 		var diagnostics = compilation.GetDiagnostics(cancellationToken)
 			.Where(d => d.Severity is not DiagnosticSeverity.Hidden && d.Location.SourceTree == syntaxTree)
-			.Select(d => new SharpIdeDiagnostic(syntaxTree.GetMappedLineSpan(d.Location.SourceSpan).Span, d))
+			.Select(d =>
+			{
+				var mappedFileLinePositionSpan = d.Location.SourceTree!.GetMappedLineSpan(d.Location.SourceSpan);
+				return new SharpIdeDiagnostic(mappedFileLinePositionSpan.Span, d, mappedFileLinePositionSpan.Path);
+			})
 			.ToImmutableArray();
 		return diagnostics;
 	}
@@ -347,7 +357,13 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 
 		var diagnostics = semanticModel.GetDiagnostics(cancellationToken: cancellationToken);
 		diagnostics = diagnostics.Where(d => d.Severity is not DiagnosticSeverity.Hidden).ToImmutableArray();
-		var result = diagnostics.Select(d => new SharpIdeDiagnostic(semanticModel.SyntaxTree.GetMappedLineSpan(d.Location.SourceSpan).Span, d)).ToImmutableArray();
+		var result = diagnostics
+			.Select(d =>
+			{
+				var mappedFileLinePositionSpan = semanticModel.SyntaxTree.GetMappedLineSpan(d.Location.SourceSpan);
+				return new SharpIdeDiagnostic(mappedFileLinePositionSpan.Span, d, mappedFileLinePositionSpan.Path);
+			})
+			.ToImmutableArray();
 		return result;
 	}
 

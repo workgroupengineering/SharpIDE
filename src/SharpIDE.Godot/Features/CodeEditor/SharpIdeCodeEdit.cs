@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Collections.Specialized;
 using Godot;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeActions;
@@ -7,6 +8,8 @@ using Microsoft.CodeAnalysis.Rename.ConflictEngine;
 using Microsoft.CodeAnalysis.Shared.Extensions;
 using Microsoft.CodeAnalysis.Tags;
 using Microsoft.CodeAnalysis.Text;
+using ObservableCollections;
+using R3;
 using Roslyn.Utilities;
 using SharpIDE.Application;
 using SharpIDE.Application.Features.Analysis;
@@ -107,8 +110,6 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		await this.InvokeAsync(async () => SetSyntaxHighlightingModel(await documentSyntaxHighlighting, await razorSyntaxHighlighting));
 		var documentDiagnostics = await _roslynAnalysis.GetDocumentDiagnostics(_currentFile, ct);
 		await this.InvokeAsync(() => SetDiagnostics(documentDiagnostics));
-		var projectDiagnostics = await _roslynAnalysis.GetProjectDiagnosticsForFile(_currentFile, ct);
-		await this.InvokeAsync(() => SetProjectDiagnostics(projectDiagnostics));
 	}
 
 	public enum LineEditOrigin
@@ -255,11 +256,20 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		var readFileTask = _openTabsFileManager.GetFileTextAsync(file);
 		_currentFile.FileContentsChangedExternally.Subscribe(OnFileChangedExternally);
 		_currentFile.FileDeleted.Subscribe(OnFileDeleted);
+		var project = ((IChildSharpIdeNode)_currentFile).GetNearestProjectNode();
+		if (project is not null)
+		{
+			project.Diagnostics.ObserveChanged()
+				.SubscribeAwait(async (innerEvent, ct) =>
+				{
+					var projectDiagnosticsForFile = project.Diagnostics.Where(s => s.FilePath == _currentFile.Path).ToImmutableArray();
+					await this.InvokeAsync(() => SetProjectDiagnostics(projectDiagnosticsForFile));
+				});
+		}
 		
 		var syntaxHighlighting = _roslynAnalysis.GetDocumentSyntaxHighlighting(_currentFile);
 		var razorSyntaxHighlighting = _roslynAnalysis.GetRazorDocumentSyntaxHighlighting(_currentFile);
 		var diagnostics = _roslynAnalysis.GetDocumentDiagnostics(_currentFile);
-		var projectDiagnosticsForFile = _roslynAnalysis.GetProjectDiagnosticsForFile(_currentFile);
 		await readFileTask;
 		var setTextTask = this.InvokeAsync(async () =>
 		{
@@ -275,8 +285,6 @@ public partial class SharpIdeCodeEdit : CodeEdit
 			await this.InvokeAsync(async () => SetSyntaxHighlightingModel(await syntaxHighlighting, await razorSyntaxHighlighting));
 			await diagnostics;
 			await this.InvokeAsync(async () => SetDiagnostics(await diagnostics));
-			await projectDiagnosticsForFile;
-			await this.InvokeAsync(async () => SetProjectDiagnostics(await projectDiagnosticsForFile));
 		});
 	}
 

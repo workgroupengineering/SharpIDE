@@ -11,11 +11,11 @@
 	<MudTreeViewItem T="string" TextTypo="Typo.body2" EndTextTypo="Typo.caption" Expanded="false" Icon="@Icons.Material.Filled.Code" IconColor="Color.Success" Value="@ProjectModel.Name" Text="@ProjectModel.Name" EndText="@($"{_diagnostics.Length} diagnostics")">
 		@foreach (var diagnostic in _diagnostics)
 		{
-			<MudTreeViewItem T="string" TextTypo="Typo.body2" OnClick="@(async () => await OpenDocumentContainingDiagnostic(diagnostic))" Icon="@Icons.Material.Filled.Warning" IconColor="@GetDiagnosticIconColour(diagnostic)" Value="@diagnostic.ToString()">
+			<MudTreeViewItem T="string" TextTypo="Typo.body2" OnClick="@(async () => await OpenDocumentContainingDiagnostic(diagnostic.Diagnostic))" Icon="@Icons.Material.Filled.Warning" IconColor="@GetDiagnosticIconColour(diagnostic.Diagnostic)" Value="@diagnostic.ToString()">
 				<BodyContent>
 					<MudText Typo="Typo.body2">
-						@diagnostic.GetMessage()
-						<MudText Typo="Typo.caption" Style="color: var(--mud-palette-gray-dark)">@diagnostic.Id</MudText>
+						@diagnostic.Diagnostic.GetMessage()
+						<MudText Typo="Typo.caption" Style="color: var(--mud-palette-gray-dark)">@diagnostic.Diagnostic.Id</MudText>
 					</MudText>
 				</BodyContent>
 			</MudTreeViewItem>
@@ -30,7 +30,7 @@
 	[Parameter]
 	public EventCallback<SharpIdeFile> OnFileSelected { get; set; }
 
-	private ImmutableArray<Diagnostic> _diagnostics = [];
+	private ImmutableArray<SharpIdeDiagnostic> _diagnostics = [];
 
 	private static Color GetDiagnosticIconColour(Diagnostic diagnostic) => diagnostic.Severity switch
 	{

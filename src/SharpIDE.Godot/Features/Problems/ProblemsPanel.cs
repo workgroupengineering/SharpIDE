@@ -79,14 +79,14 @@ public partial class ProblemsPanel : Control
         });
     }
 
-    private async Task CreateDiagnosticTreeItem(Tree tree, TreeItem parent, ViewChangedEvent<Diagnostic, TreeItemContainer> e)
+    private async Task CreateDiagnosticTreeItem(Tree tree, TreeItem parent, ViewChangedEvent<SharpIdeDiagnostic, TreeItemContainer> e)
     {
         await this.InvokeAsync(() =>
         {
             var diagItem = tree.CreateItem(parent);
-            diagItem.SetText(0, e.NewItem.Value.GetMessage());
-            diagItem.SetMetadata(0, new RefCountedContainer<Diagnostic>(e.NewItem.Value));
-            diagItem.SetIcon(0, e.NewItem.Value.Severity switch
+            diagItem.SetText(0, e.NewItem.Value.Diagnostic.GetMessage());
+            diagItem.SetMetadata(0, new RefCountedContainer<SharpIdeDiagnostic>(e.NewItem.Value));
+            diagItem.SetIcon(0, e.NewItem.Value.Diagnostic.Severity switch
             {
                 DiagnosticSeverity.Error => ErrorIcon,
                 DiagnosticSeverity.Warning => WarningIcon,
@@ -107,13 +107,13 @@ public partial class ProblemsPanel : Control
     private void TreeOnItemActivated()
     {
         var selected = _tree.GetSelected();
-        var diagnosticContainer = selected.GetMetadata(0).As<RefCountedContainer<Diagnostic>?>();
+        var diagnosticContainer = selected.GetMetadata(0).As<RefCountedContainer<SharpIdeDiagnostic>?>();
         if (diagnosticContainer is null) return;
         var diagnostic = diagnosticContainer.Item;
         var parentTreeItem = selected.GetParent();
         var projectContainer = parentTreeItem.GetMetadata(0).As<RefCountedContainer<SharpIdeProjectModel>?>();
         if (projectContainer is null) return;
-        OpenDocumentContainingDiagnostic(diagnostic);
+        OpenDocumentContainingDiagnostic(diagnostic.Diagnostic);
     }
     
     private void OpenDocumentContainingDiagnostic(Diagnostic diagnostic)
