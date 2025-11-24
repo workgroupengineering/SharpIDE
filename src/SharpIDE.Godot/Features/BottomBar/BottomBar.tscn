@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://cnla64hcar6dr" path="res://Features/BottomBar/RunningTasksDisplay.tscn" id="2_5swca"]
 
 [node name="BottomBar" type="PanelContainer"]
-custom_minimum_size = Vector2(0, 27)
+custom_minimum_size = Vector2(0, 28)
 anchors_preset = 14
 anchor_top = 0.5
 anchor_right = 1.0
