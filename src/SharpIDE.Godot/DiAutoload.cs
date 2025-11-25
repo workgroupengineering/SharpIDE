@@ -3,16 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SharpIDE.Application.Features.Analysis;
-using SharpIDE.Application.Features.Build;
-using SharpIDE.Application.Features.Evaluation;
-using SharpIDE.Application.Features.FilePersistence;
-using SharpIDE.Application.Features.FileWatching;
-using SharpIDE.Application.Features.NavigationHistory;
-using SharpIDE.Application.Features.Nuget;
-using SharpIDE.Application.Features.Run;
-using SharpIDE.Application.Features.Search;
-using SharpIDE.Application.Features.Testing;
+using SharpIDE.Application;
 using SharpIDE.Godot.Features.ActivityListener;
 
 namespace SharpIDE.Godot;
@@ -29,25 +20,8 @@ public partial class DiAutoload : Node
     {
         GD.Print("[Injector] _EnterTree called");
         var services = new ServiceCollection();
-        // Register services here
-        services.AddScoped<BuildService>();
-        services.AddScoped<RunService>();
-        services.AddScoped<SearchService>();
-        services.AddScoped<IdeFileExternalChangeHandler>();
-        services.AddScoped<IdeCodeActionService>();
-        services.AddScoped<IdeRenameService>();
-        services.AddScoped<IdeApplyCompletionService>();
-        services.AddScoped<FileChangedService>();
-        services.AddScoped<DotnetUserSecretsService>();
-        services.AddScoped<NugetClientService>();
-        services.AddScoped<TestRunnerService>();
-        services.AddScoped<NugetPackageIconCacheService>();
-        services.AddScoped<IdeFileWatcher>();
-        services.AddScoped<IdeNavigationHistoryService>();
-        services.AddScoped<IdeOpenTabsFileManager>();
-        services.AddScoped<RoslynAnalysis>();
-        services.AddScoped<IdeFileOperationsService>();
-        services.AddScoped<SharpIdeSolutionModificationService>();
+
+        services.AddApplication();
         services.AddScoped<SharpIdeSolutionAccessor>();
         services.AddScoped<ActivityMonitor>();
 
