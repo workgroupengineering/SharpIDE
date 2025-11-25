@@ -108,12 +108,15 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 
 			_msBuildProjectLoader = new CustomMsBuildProjectLoader(_workspace);
 		}
+
+		using (var ___ = SharpIdeOtel.Source.StartActivity("RestoreSolution"))
+		{
+			// MsBuildProjectLoader doesn't do a restore which is absolutely required for resolving PackageReferences, if they have changed. I am guessing it just reads from project.assets.json
+			await _buildService.MsBuildAsync(_sharpIdeSolutionModel.FilePath, BuildType.Restore, cancellationToken);
+		}
 		using (var ___ = SharpIdeOtel.Source.StartActivity("OpenSolution"))
 		{
 			//_msBuildProjectLoader!.LoadMetadataForReferencedProjects = true;
-
-			// MsBuildProjectLoader doesn't do a restore which is absolutely required for resolving PackageReferences, if they have changed. I am guessing it just reads from project.assets.json
-			await _buildService.MsBuildAsync(_sharpIdeSolutionModel.FilePath, BuildType.Restore, cancellationToken);
 			var (solutionInfo, projectFileInfos) = await _msBuildProjectLoader!.LoadSolutionInfoAsync(_sharpIdeSolutionModel.FilePath, cancellationToken: cancellationToken);
 			_projectFileInfoMap = projectFileInfos;
 			_workspace.ClearSolution();

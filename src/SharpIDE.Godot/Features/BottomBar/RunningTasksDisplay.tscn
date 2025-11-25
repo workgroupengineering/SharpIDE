@@ -56,6 +56,15 @@ theme_override_font_sizes/font_size = 14
 text = "Updating Solution Diagnostics"
 vertical_alignment = 1
 
+[node name="SolutionRestoringLabel" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67058825, 0.67058825, 0.67058825, 1)
+theme_override_font_sizes/font_size = 14
+text = "Restoring Solution"
+vertical_alignment = 1
+
 [node name="ProgressBar" type="ProgressBar" parent="."]
 custom_minimum_size = Vector2(150, 9)
 layout_mode = 2

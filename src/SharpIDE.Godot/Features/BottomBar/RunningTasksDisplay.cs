@@ -9,16 +9,19 @@ public partial class RunningTasksDisplay : HBoxContainer
 {
     [Inject] private readonly ActivityMonitor _activityMonitor = null!;
     
+    private bool _isSolutionRestoring;
     private bool _isSolutionLoading;
     private bool _isSolutionDiagnosticsBeingRetrieved;
 
+    private Label _solutionRestoringLabel = null!;
     private Label _solutionLoadingLabel = null!;
     private Label _solutionDiagnosticsLabel = null!;
     
     public override void _Ready()
     {
-        _solutionLoadingLabel = GetNode<Label>("SolutionLoadingLabel");
-        _solutionDiagnosticsLabel = GetNode<Label>("SolutionDiagnosticsLabel");
+        _solutionRestoringLabel = GetNode<Label>("%SolutionRestoringLabel");
+        _solutionLoadingLabel = GetNode<Label>("%SolutionLoadingLabel");
+        _solutionDiagnosticsLabel = GetNode<Label>("%SolutionDiagnosticsLabel");
         Visible = false;
         _activityMonitor.ActivityStarted.Subscribe(OnActivityStarted);
         _activityMonitor.ActivityStopped.Subscribe(OnActivityStopped);
@@ -41,16 +44,21 @@ public partial class RunningTasksDisplay : HBoxContainer
         {
             _isSolutionLoading = isOccurring;
         }
+        else if (activity.DisplayName == "RestoreSolution")
+        {
+            _isSolutionRestoring = isOccurring;
+        }
         else
         {
             return;
         }
         
-        var visible = _isSolutionDiagnosticsBeingRetrieved || _isSolutionLoading;
+        var visible = _isSolutionDiagnosticsBeingRetrieved || _isSolutionLoading || _isSolutionRestoring;
         await this.InvokeAsync(() =>
         {
             _solutionLoadingLabel.Visible = _isSolutionLoading;
             _solutionDiagnosticsLabel.Visible = _isSolutionDiagnosticsBeingRetrieved;
+            _solutionRestoringLabel.Visible = _isSolutionRestoring;
             Visible = visible;
         });
     }
