@@ -64,5 +64,6 @@
 
   <ItemGroup>
     <AdditionalFiles Include="BannedSymbols.txt" />
+    <Content Remove="$(NuGetPackageRoot)\microsoft.codeanalysis.workspaces.msbuild\**\**\BuildHost-net472\**" />
   </ItemGroup>
 </Project>
