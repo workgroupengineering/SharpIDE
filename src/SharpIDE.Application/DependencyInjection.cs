@@ -34,6 +34,7 @@ public static class DependencyInjection
 		services.AddScoped<RoslynAnalysis>();
 		services.AddScoped<IdeFileOperationsService>();
 		services.AddScoped<SharpIdeSolutionModificationService>();
+		services.AddLogging();
 		return services;
 	}
 }

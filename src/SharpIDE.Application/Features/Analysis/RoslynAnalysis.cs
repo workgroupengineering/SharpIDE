@@ -56,7 +56,7 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 	// Primarily used for getting the globs for a project
 	private Dictionary<ProjectId, ProjectFileInfo> _projectFileInfoMap = new();
 
-	private TaskCompletionSource _solutionLoadedTcs = null!;
+	public TaskCompletionSource _solutionLoadedTcs = null!;
 	private SharpIdeSolutionModel? _sharpIdeSolutionModel;
 	public void StartSolutionAnalysis(SharpIdeSolutionModel solutionModel)
 	{
@@ -66,6 +66,7 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 			try
 			{
 				await Analyse(solutionModel);
+				await UpdateSolutionDiagnostics();
 			}
 			catch (Exception e)
 			{
@@ -148,7 +149,6 @@ public class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService buildSe
 		// 	_codeRefactoringProviders.AddRange(refactoringProviders);
 		// }
 
-		await UpdateSolutionDiagnostics(cancellationToken);
 		// foreach (var project in solution.Projects)
 		// {
 		// 	// foreach (var document in project.Documents)
