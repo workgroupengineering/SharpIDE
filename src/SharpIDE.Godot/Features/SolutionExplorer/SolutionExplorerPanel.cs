@@ -299,16 +299,18 @@ public partial class SolutionExplorerPanel : MarginContainer
 		}
 		var fileItem = tree.CreateItem(parent, newStartingIndex);
 		fileItem.SetText(0, sharpIdeFile.Name);
-		var (icon, overlayIcon) = GetIconForFileExtension(sharpIdeFile.Extension);
-		fileItem.SetIcon(0, icon);
-		if (overlayIcon is not null) fileItem.SetIconOverlay(0, overlayIcon);
+		fileItem.SetIconsForFileExtension(sharpIdeFile);
 		fileItem.SetCustomColor(0, GetColorForGitStatus(sharpIdeFile.GitStatus));
 		fileItem.SetMetadata(0, new RefCountedContainer<SharpIdeFile>(sharpIdeFile));
 		
 		Observable.EveryValueChanged(sharpIdeFile, file => file.Name)
 			.Skip(1).SubscribeAwait(async (s, ct) =>
 			{
-				await this.InvokeAsync(() => fileItem.SetText(0, s));
+				await this.InvokeAsync(() =>
+				{
+					fileItem.SetText(0, s);
+					fileItem.SetIconsForFileExtension(sharpIdeFile);
+				});
 			}).AddTo(this);
 		
 		return fileItem;
