@@ -1,12 +1,14 @@
 using Godot;
 using SharpIDE.Application.Features.Analysis;
 using SharpIDE.Application.Features.Search;
+using SharpIDE.Godot.Features.SolutionExplorer;
 
 namespace SharpIDE.Godot.Features.Search.SearchAllFiles;
 
 public partial class SearchAllFilesResultComponent : MarginContainer
 {
     private TextureRect _textureRect = null!;
+    private TextureRect _overlayTextureRect = null!;
     private Label _fileNameLabel = null!;
     private Label _filePathLabel = null!;
     private Button _button = null!;
@@ -21,6 +23,7 @@ public partial class SearchAllFilesResultComponent : MarginContainer
     {
         _button = GetNode<Button>("Button");
         _textureRect = GetNode<TextureRect>("%IconTextureRect");
+        _overlayTextureRect = GetNode<TextureRect>("%IconOverlayTextureRect");
         _fileNameLabel = GetNode<Label>("%FileNameLabel");
         _filePathLabel = GetNode<Label>("%FilePathLabel");
         SetValue(Result);
@@ -36,7 +39,9 @@ public partial class SearchAllFilesResultComponent : MarginContainer
     private void SetValue(FindFilesSearchResult result)
     {
         if (result is null) return;
-        _textureRect.Texture = _csharpFileIcon;
+        var (icon, overlayIcon) = FileIconHelper.GetIconForFileExtension(result.File.Extension);
+        _textureRect.Texture = icon;
+        _overlayTextureRect.Texture = overlayIcon;
         _fileNameLabel.Text = result.File.Name;
         _filePathLabel.Text = result.File.Path;
     }

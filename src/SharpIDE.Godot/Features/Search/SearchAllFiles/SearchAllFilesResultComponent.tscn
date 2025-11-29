@@ -42,7 +42,15 @@ theme_override_constants/margin_right = 5
 [node name="HBoxContainer" type="HBoxContainer" parent="Button/MarginContainer"]
 layout_mode = 2
 
-[node name="IconTextureRect" type="TextureRect" parent="Button/MarginContainer/HBoxContainer"]
+[node name="CenterContainer" type="CenterContainer" parent="Button/MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="IconTextureRect" type="TextureRect" parent="Button/MarginContainer/HBoxContainer/CenterContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="IconOverlayTextureRect" type="TextureRect" parent="Button/MarginContainer/HBoxContainer/CenterContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 
