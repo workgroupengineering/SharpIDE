@@ -8,6 +8,7 @@ using SharpIDE.Application.Features.NavigationHistory;
 using SharpIDE.Application.Features.SolutionDiscovery;
 using SharpIDE.Application.Features.SolutionDiscovery.VsPersistence;
 using SharpIDE.Godot.Features.Common;
+using SharpIDE.Godot.Features.Git;
 using SharpIDE.Godot.Features.Problems;
 
 namespace SharpIDE.Godot.Features.SolutionExplorer;
@@ -24,10 +25,6 @@ public partial class SolutionExplorerPanel : MarginContainer
 	public Texture2D CsprojIcon { get; set; } = null!;
 	[Export]
 	public Texture2D SlnIcon { get; set; } = null!;
-
-	private readonly Color _gitNewFileColour = new Color("50964c");
-	private readonly Color _gitEditedFileColour = new Color("6496ba");
-	private readonly Color _gitUnalteredFileColour = new Color("d4d4d4");
 	
 	public SharpIdeSolutionModel SolutionModel { get; set; } = null!;
 	private Tree _tree = null!;
@@ -300,7 +297,7 @@ public partial class SolutionExplorerPanel : MarginContainer
 		var fileItem = tree.CreateItem(parent, newStartingIndex);
 		fileItem.SetText(0, sharpIdeFile.Name);
 		fileItem.SetIconsForFileExtension(sharpIdeFile);
-		fileItem.SetCustomColor(0, GetColorForGitStatus(sharpIdeFile.GitStatus));
+		fileItem.SetCustomColor(0, GitColours.GetColorForGitFileStatus(sharpIdeFile.GitStatus));
 		fileItem.SetMetadata(0, new RefCountedContainer<SharpIdeFile>(sharpIdeFile));
 		
 		Observable.EveryValueChanged(sharpIdeFile, file => file.Name)
@@ -339,12 +336,4 @@ public partial class SolutionExplorerPanel : MarginContainer
 	{
 	    await this.InvokeAsync(() => item?.Free());
 	}
-
-	private Color GetColorForGitStatus(GitStatus status) => status switch
-	{
-		GitStatus.Added => _gitNewFileColour,
-		GitStatus.Modified => _gitEditedFileColour,
-		GitStatus.Unaltered => _gitUnalteredFileColour,
-		_ => _gitUnalteredFileColour
-	};
 }

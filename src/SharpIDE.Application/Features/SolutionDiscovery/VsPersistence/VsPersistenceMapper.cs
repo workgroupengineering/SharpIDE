@@ -27,10 +27,10 @@ public static class VsPersistenceMapper
 
 			var mappedGitStatus = entry.State switch
 			{
-				FileStatus.NewInIndex | FileStatus.ModifiedInWorkdir => GitStatus.Added, // I've seen these appear together
-				FileStatus.NewInIndex or FileStatus.NewInWorkdir => GitStatus.Added,
-				FileStatus.ModifiedInIndex or FileStatus.ModifiedInWorkdir => GitStatus.Modified,
-				_ => GitStatus.Unaltered // TODO: handle other kinds?
+				FileStatus.NewInIndex | FileStatus.ModifiedInWorkdir => GitFileStatus.Added, // I've seen these appear together
+				FileStatus.NewInIndex or FileStatus.NewInWorkdir => GitFileStatus.Added,
+				FileStatus.ModifiedInIndex or FileStatus.ModifiedInWorkdir => GitFileStatus.Modified,
+				_ => GitFileStatus.Unaltered // TODO: handle other kinds?
 			};
 
 			fileInSolution.GitStatus = mappedGitStatus;
@@ -40,7 +40,7 @@ public static class VsPersistenceMapper
 	}
 }
 
-public enum GitStatus
+public enum GitFileStatus
 {
 	Unaltered,
 	Modified,
