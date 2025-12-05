@@ -171,6 +171,22 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.67058825, 0.67058825, 0.67058825, 1)
 text = "0"
 
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/margin_left = 10
+
+[node name="ImplicitlyInstalledPackagesProgressBar" type="ProgressBar" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer2/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 9)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 2
+indeterminate = true
+editor_preview_indeterminate = false
+
 [node name="PanelContainer2" type="PanelContainer" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
 
@@ -182,10 +198,35 @@ theme_override_constants/separation = 0
 [node name="PackageEntry" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer/PanelContainer2/ImplicitlyInstalledPackagesVBoxContainer" instance=ExtResource("2_arg4f")]
 layout_mode = 2
 
-[node name="Label3" type="Label" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
+[node name="HBoxContainer3" type="HBoxContainer" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Label" type="Label" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer3"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.67058825, 0.67058825, 0.67058825, 1)
-text = "Available Packages: Top 100"
+text = "Available Packages: "
+
+[node name="PackageSearchResultCountLabel" type="Label" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.67058825, 0.67058825, 0.67058825, 1)
+text = "Top 100"
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/margin_left = 10
+
+[node name="PackageSearchProgressBar" type="ProgressBar" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer/HBoxContainer3/MarginContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 9)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_font_sizes/font_size = 2
+indeterminate = true
+editor_preview_indeterminate = false
 
 [node name="PanelContainer3" type="PanelContainer" parent="VBoxContainer/MarginContainer2/HSplitContainer/VBoxContainer/ScrollContainer/VBoxContainer"]
 layout_mode = 2
