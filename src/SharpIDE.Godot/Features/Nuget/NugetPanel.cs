@@ -81,7 +81,6 @@ public partial class NugetPanel : Control
 			}
 			_solutionOrProjectOptionButton.ItemSelected += OnSolutionOrProjectSelected;
 		});
-		OnSolutionOrProjectSelected(0);
 	}
 
 	public override void _ExitTree()
