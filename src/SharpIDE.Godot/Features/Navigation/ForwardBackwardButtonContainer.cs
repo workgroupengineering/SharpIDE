@@ -17,26 +17,27 @@ public partial class ForwardBackwardButtonContainer : HBoxContainer
         _forwardButton = GetNode<Button>("ForwardButton");
         _backwardButton.Pressed += OnBackwardButtonPressed;
         _forwardButton.Pressed += OnForwardButtonPressed;
-        Observable.EveryValueChanged(_navigationHistoryService, navigationHistoryService => navigationHistoryService.Current)
-            .Where(s => s is not null)
-            .Subscribe(s =>
+        _navigationHistoryService.Current.SubscribeOnThreadPool().SubscribeAwait(async (s, ct) =>
+        {
+            await this.InvokeAsync(() =>
             {
                 _backwardButton.Disabled = !_navigationHistoryService.CanGoBack;
                 _forwardButton.Disabled = !_navigationHistoryService.CanGoForward;
-            }).AddTo(this);
+            });
+        }).AddTo(this);
     }
     
     private void OnBackwardButtonPressed()
     {
         _navigationHistoryService.GoBack();
-        var current = _navigationHistoryService.Current;
+        var current = _navigationHistoryService.Current.Value;
         GodotGlobalEvents.Instance.FileExternallySelected.InvokeParallelFireAndForget(current!.File, current.LinePosition);
     }
 
     private void OnForwardButtonPressed()
     {
         _navigationHistoryService.GoForward();
-        var current = _navigationHistoryService.Current;
+        var current = _navigationHistoryService.Current.Value;
         GodotGlobalEvents.Instance.FileExternallySelected.InvokeParallelFireAndForget(current!.File, current.LinePosition);
     }
 }

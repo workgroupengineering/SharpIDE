@@ -376,7 +376,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		if (@event is InputEventMouseButton { Pressed: true } mouseEvent)
 		{
 			var (col, line) = GetLineColumnAtPos((Vector2I)mouseEvent.Position);
-			var current = _navigationHistoryService.Current;
+			var current = _navigationHistoryService.Current.Value;
 			if (current!.File != _currentFile) throw new InvalidOperationException("Current navigation history file does not match the focused code editor file.");
 			if (current.LinePosition.Line != line) // Only record a new navigation if the line has changed
 			{
