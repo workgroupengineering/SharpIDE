@@ -27,10 +27,11 @@ public partial class ThreadsVariablesSubTab : Control
 		_stackFramesTree = GetNode<Tree>("%StackFramesTree");
 		_variablesTree = GetNode<Tree>("%VariablesTree");
 		GlobalEvents.Instance.DebuggerExecutionStopped.Subscribe(OnDebuggerExecutionStopped);
+		GlobalEvents.Instance.DebuggerExecutionContinued.Subscribe(ClearAllTrees);
 		_threadsTree.ItemSelected += OnThreadSelected;
 		_stackFramesTree.ItemSelected += OnStackFrameSelected;
 		_variablesTree.ItemCollapsed += OnVariablesItemExpandedOrCollapsed;
-		Project.ProjectStoppedRunning.Subscribe(ProjectStoppedRunning);
+		Project.ProjectStoppedRunning.Subscribe(ClearAllTrees);
 	}
 
 	private void OnVariablesItemExpandedOrCollapsed(TreeItem item)
@@ -64,10 +65,11 @@ public partial class ThreadsVariablesSubTab : Control
 	public override void _ExitTree()
 	{
 		GlobalEvents.Instance.DebuggerExecutionStopped.Unsubscribe(OnDebuggerExecutionStopped);
-		Project.ProjectStoppedRunning.Unsubscribe(ProjectStoppedRunning);
+		GlobalEvents.Instance.DebuggerExecutionContinued.Unsubscribe(ClearAllTrees);
+		Project.ProjectStoppedRunning.Unsubscribe(ClearAllTrees);
 	}
 
-	private async Task ProjectStoppedRunning()
+	private async Task ClearAllTrees()
 	{
 		await this.InvokeAsync(() =>
 		{
