@@ -14,19 +14,9 @@ public partial class SettingsWindow : Window
         _debuggerFilePathLineEdit = GetNode<LineEdit>("%DebuggerFilePathLineEdit");
         _debuggerUseSharpDbgCheckButton = GetNode<CheckButton>("%DebuggerUseSharpDbgCheckButton");
         _uiScaleSpinBox.ValueChanged += OnUiScaleSpinBoxValueChanged;
-        _debuggerFilePathLineEdit.TextChanged += DebuggerFilePathChanged;
-        _debuggerUseSharpDbgCheckButton.Toggled += OnDebuggerUseSharpDbgCheckButtonOnToggled;
+        _debuggerFilePathLineEdit.TextChanged += OnDebuggerFilePathChanged;
+        _debuggerUseSharpDbgCheckButton.Toggled += OnDebuggerUseSharpDbgToggled;
         AboutToPopup += OnAboutToPopup;
-    }
-
-    private void OnDebuggerUseSharpDbgCheckButtonOnToggled(bool pressed)
-    {
-        Singletons.AppState.IdeSettings.DebuggerUseSharpDbg = pressed;
-    }
-
-    private void DebuggerFilePathChanged(string newText)
-    {
-        Singletons.AppState.IdeSettings.DebuggerExecutablePath = newText;
     }
 
     private void OnAboutToPopup()
@@ -43,5 +33,15 @@ public partial class SettingsWindow : Window
         
         GetTree().GetRoot().ContentScaleFactor = valueFloat;
         PopupCenteredRatio(0.5f); // Re-size the window after scaling
+    }
+
+    private void OnDebuggerFilePathChanged(string newText)
+    {
+        Singletons.AppState.IdeSettings.DebuggerExecutablePath = newText;
+    }
+    
+    private void OnDebuggerUseSharpDbgToggled(bool pressed)
+    {
+        Singletons.AppState.IdeSettings.DebuggerUseSharpDbg = pressed;
     }
 }
