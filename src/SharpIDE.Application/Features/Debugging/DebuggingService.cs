@@ -66,6 +66,13 @@ public class DebuggingService
 			try
 			{
 				await Task.CompletedTask.ConfigureAwait(ConfigureAwaitOptions.ForceYielding); // The VS Code Debug Protocol throws if you try to send a request from the dispatcher thread
+				if (@event.Reason is StoppedEvent.ReasonValue.Exception)
+				{
+					Console.WriteLine("Stopped due to exception, continuing");
+					var continueRequest = new ContinueRequest { ThreadId = @event.ThreadId!.Value };
+					_debugProtocolHost.SendRequestSync(continueRequest);
+					return;
+				}
 				var additionalProperties = @event.AdditionalProperties;
 				// source, line, column
 				if (additionalProperties.Count is not 0)
@@ -85,13 +92,6 @@ public class DebuggingService
 					var line = topFrame.Line;
 					var executionStopInfo = new ExecutionStopInfo { FilePath = filePath, Line = line, ThreadId = @event.ThreadId!.Value, Project = project };
 					GlobalEvents.Instance.DebuggerExecutionStopped.InvokeParallelFireAndForget(executionStopInfo);
-				}
-
-				if (@event.Reason is StoppedEvent.ReasonValue.Exception)
-				{
-					Console.WriteLine("Stopped due to exception, continuing");
-					var continueRequest = new ContinueRequest { ThreadId = @event.ThreadId!.Value };
-					_debugProtocolHost.SendRequestSync(continueRequest);
 				}
 			}
 			catch (Exception e)
