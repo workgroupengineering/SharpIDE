@@ -3,7 +3,7 @@
    viewBox="0 0 20 20"
    version="1.1"
    id="svg1"
-   sodipodi:docname="cancel.svg"
+   sodipodi:docname="cancel-disabled.svg"
    inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
    width="20"
    height="20"
@@ -22,8 +22,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#505050"
      inkscape:zoom="3.3007745"
-     inkscape:cx="69.226178"
-     inkscape:cy="33.476992"
+     inkscape:cx="-13.784644"
+     inkscape:cy="16.208317"
      inkscape:window-width="2560"
      inkscape:window-height="1369"
      inkscape:window-x="2552"
@@ -45,6 +45,6 @@
   </defs>
   <path
      d="m 10,1 c -4.977,0 -9,4.023 -9,9 0,4.977 4.023,9 9,9 4.977,0 9,-4.023 9,-9 C 19,5.023 14.977,1 10,1 Z M 14.5,13.231 13.231,14.5 10,11.269 6.769,14.5 5.5,13.231 8.731,10 5.5,6.769 6.769,5.5 10,8.731 13.231,5.5 14.5,6.769 11.269,10 Z"
-     style="display:inline;fill:#f64e62;fill-opacity:1;stroke-width:0.9px"
+     style="display:inline;fill:#808080;fill-opacity:0.67263;stroke-width:0.9px"
      id="object-1" />
 </svg>
