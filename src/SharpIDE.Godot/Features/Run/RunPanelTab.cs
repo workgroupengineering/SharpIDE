@@ -29,10 +29,7 @@ public partial class RunPanelTab : Control
 		{
 			await foreach (var array in Project.RunningOutputChannel!.Reader.ReadAllAsync().ConfigureAwait(false))
 			{
-				//_terminal.Write(array);
-				//await this.InvokeAsync(() => _terminal.Write(array));
-				var str = System.Text.Encoding.UTF8.GetString(array);
-				await this.InvokeAsync(() => _terminal.Write(str));
+				await this.InvokeAsync(() => _terminal.Write(array));
 			}
 		});
 	}
