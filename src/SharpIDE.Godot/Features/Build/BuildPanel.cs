@@ -30,7 +30,7 @@ public partial class BuildPanel : Control
 
     private async Task OnBuildStarted(BuildStartedFlags _)
     {
-        await this.InvokeAsync(() => _terminal.ClearTerminal());
+        _terminal.ClearTerminal();
         _buildOutputChannelReader ??= _buildService.BuildTextWriter.ConsoleChannel.Reader;
     }
 }
