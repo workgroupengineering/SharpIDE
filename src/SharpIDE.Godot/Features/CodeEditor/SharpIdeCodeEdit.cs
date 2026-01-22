@@ -579,7 +579,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 				var symbolKindString = CollectionExtensions.GetValueOrDefault(completionItem.Properties, "SymbolKind");
 				var symbolKind = symbolKindString is null ? null : (SymbolKind?)int.Parse(symbolKindString);
 				var wellKnownTags = completionItem.Tags;
-				var typeKindString = completionItem.Tags[0];
+				var typeKindString = completionItem.Tags.ElementAtOrDefault(0);
 				var accessibilityModifierString = completionItem.Tags.Skip(1).FirstOrDefault(); // accessibility is not always supplied, and I don't think there's actually any guarantee on the order of tags. See WellKnownTags and WellKnownTagArrays
 				TypeKind? typeKind = Enum.TryParse<TypeKind>(typeKindString, out var tk) ? tk : null;
 				Accessibility? accessibilityModifier = Enum.TryParse<Accessibility>(accessibilityModifierString, out var am) ? am : null;
