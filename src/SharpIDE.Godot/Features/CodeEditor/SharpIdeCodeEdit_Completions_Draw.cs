@@ -156,15 +156,15 @@ public partial class SharpIdeCodeEdit
 
 		_codeCompletionRect.Position = new Vector2I(finalX, _codeCompletionRect.Position.Y);
 
-        //var completionStyle = GetThemeStylebox(ThemeStringNames.Completion);
-        // I don't know what this is used for, but it puts a weird block box around the completions
-        // completionStyle.Draw(
-        //     ci,
-        //     new Rect2(
-        //         codeCompletionRect.Position - completionStyle.GetOffset(),
-        //         codeCompletionRect.Size + codeCompletionMinimumSize + new Vector2I(scrollWidth, 0)
-        //     )
-        // );
+		// var completionStyle = GetThemeStylebox(ThemeStringNames.Completion);
+		// // I don't know what this is used for, but it puts a weird block box around the completions
+		// completionStyle.Draw(
+		// 	ci,
+		// 	new Rect2(
+		// 		_codeCompletionRect.Position - completionStyle.GetOffset(),
+		// 		_codeCompletionRect.Size + codeCompletionMinimumSize + new Vector2I(scrollWidth, 0)
+		// 	)
+		// );
 
         var codeCompletionBackgroundColor = GetThemeColor(ThemeStringNames.CompletionBackgroundColor);
         if (codeCompletionBackgroundColor.A > 0.01f)
