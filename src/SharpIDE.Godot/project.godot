@@ -12,17 +12,17 @@ config_version=5
 
 config/name="SharpIDE"
 run/main_scene="uid://b70jhun5a4las"
-config/features=PackedStringArray("4.5", "C#", "Forward Plus")
+config/features=PackedStringArray("4.6", "C#", "Forward Plus")
 run/max_fps=60
-boot_splash/fullsize=false
+boot_splash/stretch_mode=0
 boot_splash/image="uid://c58xmy2syss8s"
 config/icon="uid://tpjfx7mo6cwj"
 
 [autoload]
 
 DiAutoload="*res://DiAutoload.cs"
-FrameProviderDispatcher="*res://addons/R3.Godot/FrameProviderDispatcher.cs"
-ObservableTrackerRuntimeHook="*res://addons/R3.Godot/ObservableTrackerRuntimeHook.cs"
+FrameProviderDispatcher="*uid://ngclnv5y220f"
+ObservableTrackerRuntimeHook="*uid://dwd2efc46qc0v"
 
 [display]
 
