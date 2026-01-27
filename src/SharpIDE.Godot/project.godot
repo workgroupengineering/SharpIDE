@@ -36,6 +36,10 @@ project/assembly_name="SharpIDE.Godot"
 
 enabled=PackedStringArray("res://addons/R3.Godot/plugin.cfg", "res://addons/csharp_gdextension_bindgen/plugin.cfg")
 
+[gui]
+
+common/show_focus_state_on_pointer_event=0
+
 [input]
 
 CodeFixes={

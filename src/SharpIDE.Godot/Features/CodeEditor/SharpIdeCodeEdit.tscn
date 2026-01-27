@@ -16,14 +16,11 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7ptyn"]
-
 [node name="SharpIdeCodeEdit" type="CodeEdit" unique_id=2021737984]
 theme_override_colors/current_line_color = Color(0.0588235, 0.0588235, 0.0588235, 1)
 theme_override_fonts/font = ExtResource("1_s7ira")
 theme_override_font_sizes/font_size = 18
 theme_override_styles/normal = SubResource("StyleBoxFlat_v06ln")
-theme_override_styles/focus = SubResource("StyleBoxEmpty_7ptyn")
 highlight_all_occurrences = true
 highlight_current_line = true
 symbol_lookup_on_click = true

@@ -79,7 +79,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		SymbolValidate += OnSymbolValidate;
 		SymbolLookup += OnSymbolLookup;
 		LinesEditedFrom += OnLinesEditedFrom;
-		MouseEntered += GrabFocus; // fixes symbol hover not appearing when e.g. solution explorer is focused. Same as godot editor
+		MouseEntered += () => GrabFocus(true); // fixes symbol hover not appearing when e.g. solution explorer is focused. Same as godot editor
 		GlobalEvents.Instance.SolutionAltered.Subscribe(OnSolutionAltered);
 		SetCodeRegionTags("#region", "#endregion");
 		//AddGitGutter();
@@ -282,7 +282,7 @@ public partial class SharpIdeCodeEdit : CodeEdit
 		SetCaretColumn(column);
 		Callable.From(() =>
 		{
-			GrabFocus();
+			GrabFocus(true);
 			AdjustViewportToCaret();
 		}).CallDeferred();
 	}
