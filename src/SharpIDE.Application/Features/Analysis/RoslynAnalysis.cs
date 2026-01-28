@@ -762,15 +762,14 @@ public partial class RoslynAnalysis(ILogger<RoslynAnalysis> logger, BuildService
 		// user has backspaced past the trigger span
 		if (filterSpanLength < 0) return [];
 		var filterSpan = new TextSpan(completionList.Span.Start, length: filterSpanLength);
-		completionList = completionList.WithSpan(filterSpan);
 
-		var filteredCompletionItems = FilterCompletionList(completionList, completionTrigger, filterReason, sourceText);
+		var filteredCompletionItems = FilterCompletionList(completionList, filterSpan, completionTrigger, filterReason, sourceText);
 		return filteredCompletionItems;
 	}
 
-	private static ImmutableArray<SharpIdeCompletionItem> FilterCompletionList(CompletionList completionList, CompletionTrigger completionTrigger, CompletionFilterReason filterReason, SourceText sourceText)
+	private static ImmutableArray<SharpIdeCompletionItem> FilterCompletionList(CompletionList completionList, TextSpan filterSpan, CompletionTrigger completionTrigger, CompletionFilterReason filterReason, SourceText sourceText)
     {
-        var filterText = sourceText.GetSubText(completionList.Span).ToString();
+        var filterText = sourceText.GetSubText(filterSpan).ToString();
 		Console.WriteLine($"Filter text: '{filterText}'");
 
         // Use pattern matching to determine which items are most relevant out of the calculated items.
