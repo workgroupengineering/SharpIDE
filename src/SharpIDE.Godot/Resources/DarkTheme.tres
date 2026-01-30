@@ -73,6 +73,7 @@ shadow_size = 4
 
 [resource]
 CodeEdit/colors/current_line_color = Color(0.05882353, 0.05882353, 0.05882353, 1)
+CodeEdit/colors/selection_color = Color(0.14117648, 0.35686275, 0.50980395, 1)
 CodeEdit/styles/normal = SubResource("StyleBoxFlat_82udi")
 CodeEditorTabContainer/base_type = &"TabContainer"
 CodeEditorTabContainer/styles/tab_selected = SubResource("StyleBoxFlat_21uq4")
