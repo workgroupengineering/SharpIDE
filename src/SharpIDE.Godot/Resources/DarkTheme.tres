@@ -1,5 +1,18 @@
 [gd_resource type="Theme" format=3 uid="uid://epmt8kq6efrs"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_21uq4"]
+content_margin_left = 10.0
+content_margin_top = 4.0
+content_margin_right = 10.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 0.75)
+corner_detail = 1
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5oigc"]
+bg_color = Color(0.11764706, 0.11764706, 0.11764706, 1)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3gh6f"]
 content_margin_left = 0.0
 content_margin_top = 0.0
@@ -35,6 +48,9 @@ shadow_size = 4
 
 [resource]
 CodeEdit/colors/current_line_color = Color(0.05882353, 0.05882353, 0.05882353, 1)
+CodeEditorTabContainer/base_type = &"TabContainer"
+CodeEditorTabContainer/styles/tab_selected = SubResource("StyleBoxFlat_21uq4")
+CodeEditorTabContainer/styles/tabbar_background = SubResource("StyleBoxFlat_5oigc")
 Gray500Label/base_type = &"Label"
 Gray500Label/colors/font_color = Color(0.5137255, 0.5137255, 0.5137255, 1)
 Gray600Label/base_type = &"Label"
