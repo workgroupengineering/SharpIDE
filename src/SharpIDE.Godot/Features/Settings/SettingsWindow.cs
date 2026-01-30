@@ -7,15 +7,22 @@ public partial class SettingsWindow : Window
     private SpinBox _uiScaleSpinBox = null!;
     private LineEdit _debuggerFilePathLineEdit = null!;
     private CheckButton _debuggerUseSharpDbgCheckButton = null!;
+    private OptionButton _themeOptionButton = null!;
+    
+    private Theme _lightTheme = ResourceLoader.Load<Theme>("uid://epmt8kq6efrs");
+    private Theme _darkTheme = ResourceLoader.Load<Theme>("uid://dc7l6bjhn61i5");
+    
     public override void _Ready()
     {
         CloseRequested += Hide;
         _uiScaleSpinBox = GetNode<SpinBox>("%UiScaleSpinBox");
         _debuggerFilePathLineEdit = GetNode<LineEdit>("%DebuggerFilePathLineEdit");
         _debuggerUseSharpDbgCheckButton = GetNode<CheckButton>("%DebuggerUseSharpDbgCheckButton");
+        _themeOptionButton = GetNode<OptionButton>("%ThemeOptionButton");
         _uiScaleSpinBox.ValueChanged += OnUiScaleSpinBoxValueChanged;
         _debuggerFilePathLineEdit.TextChanged += OnDebuggerFilePathChanged;
         _debuggerUseSharpDbgCheckButton.Toggled += OnDebuggerUseSharpDbgToggled;
+        _themeOptionButton.ItemSelected += OnThemeItemSelected;
         AboutToPopup += OnAboutToPopup;
     }
 
@@ -43,5 +50,19 @@ public partial class SettingsWindow : Window
     private void OnDebuggerUseSharpDbgToggled(bool pressed)
     {
         Singletons.AppState.IdeSettings.DebuggerUseSharpDbg = pressed;
+    }
+    
+    private void OnThemeItemSelected(long index)
+    {
+        var selectedTheme = _themeOptionButton.GetItemText((int)index);
+        var rootWindow = GetTree().GetRoot();
+        if (selectedTheme is "Light")
+        {
+            rootWindow.Theme = _lightTheme;
+        }
+        else if (selectedTheme is "Dark")
+        {
+            rootWindow.Theme = _darkTheme;
+        }
     }
 }
