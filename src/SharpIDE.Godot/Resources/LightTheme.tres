@@ -74,6 +74,15 @@ corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 corner_detail = 5
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_amw38"]
+bg_color = Color(0.82, 0.82, 0.82, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+shadow_color = Color(0, 0, 0, 0.11764706)
+shadow_size = 4
+
 [resource]
 Button/colors/font_color = Color(0.12, 0.12, 0.12, 1)
 Button/colors/font_disabled_color = Color(0.12, 0.12, 0.12, 0.5019608)
@@ -97,6 +106,7 @@ LineEdit/colors/font_placeholder_color = Color(0.12, 0.12, 0.12, 0.6)
 LineEdit/styles/normal = SubResource("StyleBoxFlat_guqd5")
 Panel/styles/panel = SubResource("StyleBoxFlat_3gh6f")
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_3gh6f")
+PopupPanel/styles/panel = SubResource("StyleBoxFlat_amw38")
 Tree/colors/font_color = Color(0.16862746, 0.16862746, 0.16862746, 1)
 Tree/colors/font_hovered_color = Color(0.16862746, 0.16862746, 0.16862746, 1)
 Tree/colors/font_hovered_selected_color = Color(0.16862746, 0.16862746, 0.16862746, 1)
